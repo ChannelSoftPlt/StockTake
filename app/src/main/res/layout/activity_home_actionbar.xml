@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:background="#000000"
+    android:id="@+id/actionbar_parent_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="@string/activity_home_actionbar_label_home"
+            android:textColor="#ffffff"
+            android:layout_marginStart="10dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:id="@+id/actionBar_title"
+            android:gravity="center_vertical"
+            android:layout_height="match_parent" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:gravity="end"
+            android:id="@+id/actionBar_icon_layout"
+            android:orientation="horizontal"
+            android:layout_toEndOf="@+id/actionBar_title"
+            android:layout_height="match_parent">
+
+
+            <com.jby.stocktake.others.SquareHeightLinearLayout
+                android:layout_width="match_parent"
+                android:id="@+id/actionBar_setting"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="15dp"
+                    android:src="@drawable/actionbar_setting_icon"/>
+
+            </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+        </LinearLayout>
+
+</RelativeLayout>

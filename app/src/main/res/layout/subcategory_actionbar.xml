@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#000000"
+    android:id="@+id/actionBar"
+    android:layout_height="?actionBarSize">
+
+    <com.jby.stocktake.others.SquareHeightLinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/actionBar_back_button"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="15dp"
+            android:src="@drawable/actionbar_back_icon"/>
+
+    </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:text="@string/actiobar_title"
+        android:textColor="#ffffff"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_toEndOf="@+id/actionBar_back_button"
+        android:id="@+id/actionBar_title"
+        android:gravity="center_vertical"
+        android:layout_height="match_parent" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="end"
+        android:id="@+id/actionBar_icon_layout"
+        android:orientation="horizontal"
+        android:layout_toEndOf="@+id/actionBar_title"
+        android:layout_height="match_parent">
+
+        <com.jby.stocktake.others.SquareHeightLinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/actionBar_upload"
+            android:visibility="gone"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/sync_icon"/>
+
+        </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+        <com.jby.stocktake.others.SquareHeightLinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/actionBar_search"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/actionbar_search_icon"/>
+
+        </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+
+        <com.jby.stocktake.others.SquareHeightLinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/actionBar_setting"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/actionbar_setting_icon"/>
+
+        </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:paddingEnd="5dp"
+        android:paddingStart="0dp"
+        android:id="@+id/actionBar_search_layout"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+        <com.jby.stocktake.others.SquareHeightLinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/actionBar_cancel"
+            android:padding="5dp"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/actionbar_cancel_icon"/>
+
+        </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+        <android.support.v7.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="#ffffff"
+            android:id="@+id/action_bar_search_field"
+            android:hint="@string/actionbar_search_hint"
+            android:textColorHint="#80ffffff"
+            android:gravity="start|center"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>

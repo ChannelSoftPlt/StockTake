@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#f1f1f1"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="#000000"
+        android:orientation="horizontal"
+        android:id="@+id/fragment_sub_category_take_action_dialog_action_bar"
+        android:layout_height="?actionBarSize">
+
+        <com.jby.stocktake.others.SquareHeightLinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/fragment_sub_category_take_action_dialog_back_button"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:src="@drawable/actionbar_back_icon"/>
+
+        </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/fragment_sub_category_take_action_title"
+            android:textColor="#ffffff"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fragment_sub_category_take_action_dialog_action_bar"
+        android:id="@+id/fragment_sub_category_take_action_dialog_list_view"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="end|center"
+            android:textSize="18sp"
+            android:enabled="false"
+            android:id="@+id/activity_take_action_move_button"
+            android:textStyle="bold"
+            android:text="@string/activity_take_action_label_move"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="end|center"
+            android:textSize="18sp"
+            android:enabled="false"
+            android:visibility="gone"
+            android:id="@+id/activity_take_action_back_to_previous_button"
+            android:textStyle="bold"
+            android:text="@string/activity_take_action_label_back_to_home"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

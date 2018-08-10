@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f1f1f1"
+    tools:context="com.jby.stocktake.setting.UserAccountActivity">
+
+    <include
+        layout="@layout/actionbar"
+        android:id="@+id/activity_user_account_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_below="@id/activity_user_account_action_bar"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@string/serif"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:text="@string/activity_user_account_label_staus"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:fontFamily="@string/serif"
+            android:textColor="@color/tifanny_blue"
+            android:id="@+id/activity_user_account_user_status"
+            android:text="@string/activity_user_account_active"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:padding="15dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/activity_user_account_edit_linear_layout">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:fontFamily="@string/serif"
+                android:id="@+id/activity_user_account_username"
+                android:text="@string/activity_user_account_label_username"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:fontFamily="@string/serif"
+                android:id="@+id/activity_user_account_email"
+                android:text="@string/activity_user_account_label_user_email"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="2dp"
+                android:fontFamily="@string/font_family_condensed"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:id="@+id/activity_user_account_user_package"
+                android:text="@string/activity_user_account_user_package"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:fontFamily="@string/serif"
+                android:id="@+id/activity_user_account_active_date"
+                android:text="@string/activity_user_account_user_last_active_date"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:fontFamily="@string/serif"
+                android:id="@+id/activity_user_account_expired_date"
+                android:text="@string/activity_user_account_user_last_expired_date"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="10dp"
+                android:background="#80000000"
+                android:layout_marginEnd="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@color/tifanny_blue"
+                android:padding="12dp"
+                android:textColor="#fff"
+                android:textSize="18sp"
+                android:fontFamily="@string/font_family_black"
+                android:id="@+id/activity_user_account_button_contact_us"
+                android:text="@string/activity_user_account_button_contact_us"/>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textSize="12sp"
+                android:fontFamily="@string/font_family_medium"
+                android:text="@string/activity_user_account_label_contact_us"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:padding="20dp"
+        android:text="@string/label_copyright"/>
+
+</RelativeLayout>

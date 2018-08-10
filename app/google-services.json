@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "762552534827",
+    "firebase_url": "https://chafor-e8443.firebaseio.com",
+    "project_id": "chafor-e8443",
+    "storage_bucket": "chafor-e8443.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:762552534827:android:7a0a001d40420871",
+        "android_client_info": {
+          "package_name": "com.jby.stocktake"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "762552534827-ivlg1rn6oi885i75jl74bauafc3jtm3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jby.stocktake",
+            "certificate_hash": "cd2a2e4f63f8e0bb6c260e099aeb746c4d2ee61b"
+          }
+        },
+        {
+          "client_id": "762552534827-r5ufs80pn79kbidmkt8r977oa311rpjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE_wwAtg_TXfBPSbY4kUt_8IMdEGVIk7A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "762552534827-r5ufs80pn79kbidmkt8r977oa311rpjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

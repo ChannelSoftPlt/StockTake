@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/activity_main_layout_action_bar"
+                layout="@layout/actionbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@string/font_family_black"
+                android:padding="10dp"
+                android:text="@string/activity_setting_label_my_info"
+                android:textColor="@color/tifanny_blue" />
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_user_account"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_account"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:padding="15dp"
+                    android:src="@drawable/fragment_setting_arrow_right" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_user_device"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/activity_setting_label_device_name"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/activity_setting_label_device_name"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/activity_setting_device_name"
+                    android:layout_width="170dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/activity_setting_label_device_name"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/activity_setting_device_name"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:padding="15dp"
+                    android:src="@drawable/fragment_setting_arrow_right" />
+
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:background="#26000000" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@string/font_family_black"
+                android:padding="10dp"
+                android:text="@string/activity_setting_label_general_setting"
+                android:textColor="@color/tifanny_blue" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_sound"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_scan_sound_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="5dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_reminder"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_reminder_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="5dp" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_quick_scan_button"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_quick_scan"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_quick_scan"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_quick_scan_quantity"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_quick_scan"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_default_quantity"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_quick_scan_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:background="#26000000" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@string/font_family_black"
+                android:padding="10dp"
+                android:text="@string/activity_setting_label_chafor_info"
+                android:textColor="@color/tifanny_blue" />
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_contact_us"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/activity_contact_us_title"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:padding="15dp"
+                    android:src="@drawable/fragment_setting_arrow_right" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_log_out_button"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingEnd="0dp"
+                    android:paddingStart="15dp"
+                    android:text="@string/fragment_setting_label_log_out"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:padding="15dp"
+                    android:src="@drawable/fragment_setting_arrow_right" />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/fragment_setting_version_name"/>
+    </RelativeLayout>
+
+    </RelativeLayout>
+
+</ScrollView>
+

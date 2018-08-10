@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:gravity="center"
+    android:background="#80000000"
+    android:padding="10dp"
+    android:minHeight="1200dp"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="#f1f1f1"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="@string/fragment_sub_category_existed_dialog_label_reminder"/>
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:id="@+id/fragment_sub_category_existed_dialog_cancel_button"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/fragment_sub_category_exsited_dialog_cancel_button"/>
+
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="#809f9696"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:fontFamily="@string/font_family_condensed"
+            android:id="@+id/fragment_sub_category_existed_dialog_text"
+            android:text="@string/fragment_sub_category_existed_dialog_reminder_text"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:id="@+id/fragment_sub_category_existed_dialog_checkbox"
+                android:checked="false"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:focusable="false"
+                android:text="@string/fragment_sub_category_existed_dialog_label_check_box"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="#80000000"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="?actionBarSize">
+
+
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="#f1f1f1"
+                android:textColor="#80fa0808"
+                android:id="@+id/fragment_category_insert_dialog_button_ignore"
+                android:text="@string/fragment_sub_category_existed_dialog_button_ignore"
+                android:focusable="true"
+                android:layout_weight="1"/>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#80000000"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="#f1f1f1"
+                android:id="@+id/fragment_category_insert_dialog_button_take_action"
+                android:text="@string/fragment_sub_category_existed_dialog_button_take_action"
+                android:textColor="@color/tifanny_blue"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

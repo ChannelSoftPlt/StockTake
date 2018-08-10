@@ -1,0 +1,97 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="#ffffff"
+    tools:context="com.jby.stocktake.login.RegisterFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="0.4"
+        android:layout_height="0dp">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_alignParentStart="true"
+            android:padding="15dp"
+            android:id="@+id/fragment_register_imageView_back_button"
+            android:src="@drawable/back_button_icon"
+            android:contentDescription="@string/fragment_register_back_button"
+            android:layout_height="50dp" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/fragment_register_imageView_logo"
+            android:visibility="gone"
+            android:contentDescription="@string/fragment_register_imageView"
+            android:src="@drawable/logo"
+            android:layout_height="100dp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_height="0dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|start"
+            android:padding="10dp"
+            android:maxLines="1"
+            android:id="@+id/fragment_register_editText_email"
+            android:hint="@string/fragment_login_hint_email"
+            android:textSize="16sp"
+            android:inputType="textEmailAddress" />
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:textColor=""-->
+            <!--android:text="@string/fragment_register_email_error_message"-->
+            <!--android:layout_height="wrap_content" />-->
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|start"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:maxLines="1"
+            android:id="@+id/fragment_register_editText_company"
+            android:hint="@string/fragment_register_textView_company"
+            android:textSize="16sp"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|start"
+            android:padding="10dp"
+            android:maxLines="1"
+            android:layout_marginTop="10dp"
+            android:id="@+id/fragment_register_editText_password"
+            android:hint="@string/fragment_login_password"
+            android:textSize="16sp"
+            android:inputType="textPassword" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:id="@+id/fragment_register_button_signUp"
+            android:text="@string/fragment_register_signUp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/label_copyright"/>
+
+</LinearLayout>
