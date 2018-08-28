@@ -9,11 +9,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jby.stocktake.R;
-import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryObject;
-
 import java.util.ArrayList;
+
+import static android.content.ContentValues.TAG;
 
 public class ImportSubCategoryListViewAdapter extends BaseAdapter {
     private Context context;
@@ -64,8 +65,8 @@ public class ImportSubCategoryListViewAdapter extends BaseAdapter {
 
 //        system quantity purpose
         String system_Quantity = object.getSystem_quantity();
-        int systemQuantity;
-        if(system_Quantity.length() <= 0 || !system_Quantity.matches("^\\d+(\\.\\d+)?") || system_Quantity.contains("."))
+        long systemQuantity;
+        if(system_Quantity.length() <= 0 || !system_Quantity.matches("^\\d+(\\.\\d+)?"))
         {
             viewHolder.subCategoryInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.warning));
             systemQuantity = 0;
@@ -73,16 +74,26 @@ public class ImportSubCategoryListViewAdapter extends BaseAdapter {
         else{
 //            if match
             viewHolder.subCategoryInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.default_background));
-            systemQuantity = Integer.valueOf(system_Quantity);
+            if(system_Quantity.contains(".")){
+//                system_Quantity = "1,1,1";
+                Log.d(TAG, "Adapter value: "+system_Quantity);
+                String[] doubleSystemQuantity = system_Quantity.split("\\.");
+                Log.d(TAG, "Adapter value: "+doubleSystemQuantity.length);
+                systemQuantity = Long.valueOf(doubleSystemQuantity[0]);
+            }
+            else
+                systemQuantity = Long.valueOf(system_Quantity);
         }
 
 //        check quantity purpose
         String quantity = object.getQuantity();
-        int checkQuantity;
+        long checkQuantity;
         if(quantity.length() <= 0 || !quantity.matches("^\\d+(\\.\\d+)?"))
             checkQuantity = 0;
-        else
-            checkQuantity = Integer.valueOf(quantity);
+        else{
+            checkQuantity = Long.valueOf(quantity);
+        }
+
 
         viewHolder.system_quantity.setText(String.valueOf(systemQuantity));
         viewHolder.quantity.setText(String.valueOf(checkQuantity));

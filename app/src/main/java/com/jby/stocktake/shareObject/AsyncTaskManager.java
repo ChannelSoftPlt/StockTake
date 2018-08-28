@@ -37,7 +37,8 @@ public class AsyncTaskManager extends AsyncTask<String, String, JSONObject> {
 //        System.out.println("on doInBackground execute");
 
         JSONObject JSONObjectResponse = new JSONParser().getJSONFromUrl(this.url, this.dataPost);
-        Log.i("JSONObjectResponse", JSONObjectResponse.toString());
+        if(JSONObjectResponse != null)
+            Log.i("JSONObjectResponse", JSONObjectResponse.toString());
         return JSONObjectResponse;
     }
 

@@ -315,6 +315,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:id="@+id/fragment_setting_version_name"/>
+
     </RelativeLayout>
 
     </RelativeLayout>

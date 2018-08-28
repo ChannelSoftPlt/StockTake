@@ -162,16 +162,35 @@
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1.5"
+                    android:textColor="#564141"
+                    android:id="@+id/fragment_sub_category_update_dialog_label_selling_price"
+                    android:text="@string/fragment_sub_category_update_dialog_label_selling_price"
+                    android:textStyle="bold"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:textColor="#564141"
                     android:id="@+id/fragment_sub_category_update_dialog_selling_price"
-                    android:text="@string/fragment_sub_category_update_dialog_label_selling_price"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1.5"
+                    android:textColor="#564141"
+                    android:id="@+id/fragment_sub_category_update_dialog_label_cost_price"
+                    android:text="@string/fragment_sub_category_update_dialog_label_cost_price"
+                    android:textStyle="bold"
                     android:fontFamily="@string/font_family_condensed"
                     android:layout_height="wrap_content" />
 
@@ -180,22 +199,40 @@
                     android:layout_weight="1"
                     android:textColor="#564141"
                     android:id="@+id/fragment_sub_category_update_dialog_cost_price"
-                    android:text="@string/fragment_sub_category_update_dialog_label_cost_price"
                     android:fontFamily="@string/font_family_condensed"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="10dp"
-                android:textColor="#564141"
-                android:id="@+id/fragment_sub_category_update_dialog_date"
-                android:text="@string/fragment_sub_category_update_dialog_label_date"
-                android:fontFamily="@string/font_family_condensed"
-                android:layout_height="wrap_content" />
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#564141"
+                    android:textStyle="bold"
+                    android:id="@+id/fragment_sub_category_update_dialog_label_date"
+                    android:text="@string/fragment_sub_category_update_dialog_label_date"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#564141"
+                    android:id="@+id/fragment_sub_category_update_dialog_date"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

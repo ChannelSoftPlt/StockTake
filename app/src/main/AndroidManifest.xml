@@ -36,10 +36,14 @@
             android:name=".exportFeature.subcategory.SubCategoryActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".exportFeature.subcategory.subcategory.takeAction.TakeActionActivity" />
+
         <activity android:name=".setting.SettingActivity" />
+
         <activity android:name=".importFeature.category.ImportCategory" />
         <activity android:name=".home.HomeActivity" />
-        <activity android:name=".importFeature.sub_category.subCategory.subCategory.subCategory.ImportSubCategoryActivity" />
+        <activity
+            android:name=".importFeature.sub_category.subCategory.subCategory.subCategory.ImportSubCategoryActivity"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".exportFeature.file.ExportFileActivity" />
         <activity android:name=".importFeature.file.ImportFileActivity" />
         <activity android:name=".importFeature.sub_category.subCategory.subCategory.takeAction.ImportTakeActionActivity" />

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,6 +31,12 @@ public class ImportSubCategoryUpdateDialog extends DialogFragment implements Vie
     String currentBarCode, currentQuantity, selectedID, createdDate;
     String itemCode, systemQuantity, description, sellingPrice, costPrice, editBarcode, labelSellingPrice, labelCostPrice;
     public ImportSubCategoryUpdateDialog() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.FullScreenDialogStyle);
     }
 
     @Override
@@ -74,14 +81,14 @@ public class ImportSubCategoryUpdateDialog extends DialogFragment implements Vie
             currentBarCode = mArgs.getString("barcode");
             currentQuantity = mArgs.getString("quantity");
             selectedID = mArgs.getString("selectID");
-            createdDate = "Created at: " + mArgs.getString("date");
+            createdDate = mArgs.getString("date");
             itemCode = mArgs.getString("itemCode");
             systemQuantity = mArgs.getString("systemQuantity");
             description = mArgs.getString("description");
             sellingPrice = mArgs.getString("sellingPrice");
             costPrice = mArgs.getString("costPrice");
-            labelSellingPrice = getResources().getString( R.string.fragment_sub_category_update_dialog_label_selling_price) +"  "+ mArgs.getString("sellingPrice");
-            labelCostPrice = getResources().getString( R.string.fragment_sub_category_update_dialog_label_cost_price) +"  "+ mArgs.getString("costPrice");
+            labelSellingPrice = mArgs.getString("sellingPrice");
+            labelCostPrice = mArgs.getString("costPrice");
             editBarcode = mArgs.getString("editBarcode");
 
             subCategoryUpdateDialogEditTextBarcode.setText(currentBarCode);
@@ -103,14 +110,14 @@ public class ImportSubCategoryUpdateDialog extends DialogFragment implements Vie
                 SubCategoryUpdateDialogTextViewDescriptionContent.setText(description);
 
             if(sellingPrice.equals("")){
-                labelSellingPrice = getResources().getString( R.string.fragment_sub_category_update_dialog_label_selling_price) +" "+ "-";
+                labelSellingPrice = "-";
                 subCategoryUpdateDialogTextViewSellingPrice.setText(labelSellingPrice);
             }
             else
                 subCategoryUpdateDialogTextViewSellingPrice.setText(labelSellingPrice);
 
             if(costPrice.equals("")){
-                labelCostPrice = getResources().getString( R.string.fragment_sub_category_update_dialog_label_cost_price) +" "+ "-";
+                labelCostPrice = "-";
                 subCategoryUpdateDialogTextViewCostPrice.setText(labelCostPrice);
             }
             else

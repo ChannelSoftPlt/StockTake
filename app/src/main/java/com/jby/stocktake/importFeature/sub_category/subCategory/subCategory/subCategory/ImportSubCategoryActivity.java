@@ -312,6 +312,9 @@ public class ImportSubCategoryActivity extends AppCompatActivity implements Cust
         apiDataObjectArrayList.add(new ApiDataObject("action_display","lol"));
         apiDataObjectArrayList.add(new ApiDataObject("category_id",categoryID));
         apiDataObjectArrayList.add(new ApiDataObject("filter",filter));
+        Log.i("SubCategory", "categoryID " +categoryID);
+        Log.i("SubCategory", "user_id " + SharedPreferenceManager.getUserID(this));
+        Log.i("SubCategory", "filter " +filter);
 
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -811,8 +814,14 @@ public class ImportSubCategoryActivity extends AppCompatActivity implements Cust
     public void filter(String filter) {
         if(!this.filter.equals(filter)){
             this.filter = filter;
+//            reset logic
             resetPage();
+            successToGetDataBefore = false;
+            finishLoadAll = false;
+            onDownScrolling();
+//            load data
             subCategoryObjectArrayList.clear();
+            subCategoryListViewAdapter.notifyDataSetChanged();
             getAllSubCategoryItem(true);
         }
     }

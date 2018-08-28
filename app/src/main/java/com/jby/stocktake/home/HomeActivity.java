@@ -1,7 +1,6 @@
 package com.jby.stocktake.home;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +19,8 @@ import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.jby.stocktake.R;
@@ -47,6 +48,9 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         DeviceNameDialog.DeviceNameDialogCallback{
     private ImageView homeActivityExport, homeActivityImport;
     private SquareHeightLinearLayout homeActivitySettingButton;
+    private ProgressBar homeActivityProgressBar;
+    private LinearLayout homeActivityMainLayout;
+    private View homeActivityActionBar;
     Intent intent;
     boolean exit = false;
     FragmentManager fm;
@@ -54,7 +58,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     Bundle bundle;
     int checkUserActivation = 0;
 
-    ProgressDialog pd;
+//    ProgressDialog pd;
     Handler handler;
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
@@ -72,7 +76,10 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         homeActivityExport = (ImageView)findViewById(R.id.activity_home_export);
         homeActivityImport = (ImageView)findViewById(R.id.activity_home_import);
         homeActivitySettingButton = (SquareHeightLinearLayout)findViewById(R.id.actionBar_setting);
-        pd = new ProgressDialog(this);
+        homeActivityProgressBar = findViewById(R.id.activity_home_progress_bar);
+        homeActivityMainLayout = findViewById(R.id.activity_home_main_layout);
+        homeActivityActionBar = findViewById(R.id.actionBar);
+//        pd = new ProgressDialog(this);
         handler = new Handler();
         fm = getSupportFragmentManager();
     }
@@ -94,7 +101,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
             if(checkUserActivation == 0)
             {
                 if(isNetworkAvailable(this)){
-                    pd.setMessage("Loading...");
+//                    pd.setMessage("Loading...");
                     startUp(checkUserActivation);
                 }
                 else
@@ -116,13 +123,14 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
 
     public void startUp(int status){
         if(status != 1){
-            pd.show();
+//            pd.show();
+            progressBarVisibility(true);
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     checkUserActivation();
                 }
-            },300);
+            },500);
         }
     }
 
@@ -150,6 +158,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
             case R.id.actionBar_setting:
                 intent = new Intent(this, SettingActivity.class);
                 startActivityForResult(intent, 3);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
                 break;
         }
     }
@@ -216,7 +225,8 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
                     SharedPreferenceManager.setUserPackage(this, userPackage);
 
                     if (jsonObjectLoginResponse.getString("status").equals("1")) {
-                        pd.dismiss();
+//                        pd.dismiss();
+                        progressBarVisibility(false);
 
                     }
                     else if (jsonObjectLoginResponse.getString("status").equals("2")) {
@@ -252,8 +262,9 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
                 e.printStackTrace();
             }
         }
-        if(pd.isShowing())
-            pd.dismiss();
+//        if(pd.isShowing())
+//            pd.dismiss();
+        progressBarVisibility(false);
     }
 
     public void almostExpired() {
@@ -338,5 +349,20 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     @Override
     public void deviceNameSetting() {
 
+    }
+
+    private void progressBarVisibility(boolean show){
+        if(show){
+            homeActivityProgressBar.setVisibility(View.VISIBLE);
+            homeActivityMainLayout.setVisibility(View.GONE);
+            homeActivitySettingButton.setEnabled(false);
+            homeActivityActionBar.setVisibility(View.GONE);
+        }
+        else{
+            homeActivityProgressBar.setVisibility(View.GONE);
+            homeActivityMainLayout.setVisibility(View.VISIBLE);
+            homeActivitySettingButton.setEnabled(true);
+            homeActivityActionBar.setVisibility(View.VISIBLE);
+        }
     }
 }

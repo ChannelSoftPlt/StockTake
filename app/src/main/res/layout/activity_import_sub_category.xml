@@ -51,6 +51,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@string/activity_import_sub_category_label_status"
+                android:textSize="11sp"
                 android:textColor="#000000"
                 android:textStyle="bold"
                 android:gravity="center"
