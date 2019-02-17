@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.jby.stocktake.R;
 import com.jby.stocktake.exportFeature.category.ExportCategoryListViewObject;
+import com.jby.stocktake.others.SquareHeightLinearLayout;
 
 import java.util.ArrayList;
 
@@ -19,14 +20,12 @@ public class ExportFileListViewAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<ExportFileListViewObject> exportFileListViewObjectArrayList;
     private CategoryAdapterCallBack categoryAdapterCallBack;
-    private SparseBooleanArray mSelectedItemsIds;
 
     ExportFileListViewAdapter(Context context, ArrayList<ExportFileListViewObject> exportFileListViewObjectArrayList, CategoryAdapterCallBack categoryAdapterCallBack)
     {
         this.context = context;
         this.exportFileListViewObjectArrayList = exportFileListViewObjectArrayList;
         this.categoryAdapterCallBack = categoryAdapterCallBack;
-        mSelectedItemsIds = new  SparseBooleanArray();
     }
 
     @Override
@@ -48,91 +47,41 @@ public class ExportFileListViewAdapter extends BaseAdapter {
     public View getView(final int i, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
         if (view == null){
-            view = View.inflate(this.context, R.layout.fragment_category_list_view_item, null);
+            view = View.inflate(this.context, R.layout.activity_file_list_view_item, null);
             viewHolder = new ViewHolder(view);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
-        ExportFileListViewObject object = getItem(i);
+        final ExportFileListViewObject object = getItem(i);
         String quantity = object.getCategory_numb() + " Items";
-        viewHolder.categoryName.setText(object.getFile());
-        viewHolder.subCategory_numb.setText(quantity);
-        viewHolder.categoryEdit.setOnClickListener(new View.OnClickListener() {
+        viewHolder.fileName.setText(object.getFile());
+        viewHolder.numCategory.setText(quantity);
+
+        viewHolder.syncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                categoryAdapterCallBack.openUpdateDialog(exportFileListViewObjectArrayList.get(i).getId(),
-                        exportFileListViewObjectArrayList.get(i).getFile(), i,
-                        exportFileListViewObjectArrayList.get(i).getCategory_numb());
+                categoryAdapterCallBack.downloadRequestDialog(object.getId(), object.getFile());
             }
         });
-
-            if(mSelectedItemsIds.get(i)){
-                viewHolder.categorInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.list_view_background));
-            }
-            else{
-                viewHolder.categorInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.default_background));
-            }
-
-
         return view;
     }
 
-    public void remove(int  position) {
-        exportFileListViewObjectArrayList.remove(position);
-        notifyDataSetChanged();
-    }
-
-//    // get List after update or delete
-//    public List<String> getMyList() {
-//        return DataList;
-//    }
-
-    public void  toggleSelection(int position) {
-        selectView(position, !mSelectedItemsIds.get(position));
-    }
-
-    // Remove selection after unchecked
-    public void  removeSelection() {
-        mSelectedItemsIds = new  SparseBooleanArray();
-        notifyDataSetChanged();
-    }
-
-    // Item checked on selection
-    private void selectView(int position, boolean value) {
-        if (value){
-            mSelectedItemsIds.put(position,  true);
-        }
-        else{
-            mSelectedItemsIds.delete(position);
-        }
-        notifyDataSetChanged();
-    }
-
-    // Get number of selected item
-    public int  getSelectedCount() {
-        return mSelectedItemsIds.size();
-    }
-
-    public SparseBooleanArray getSelectedIds() {
-        return mSelectedItemsIds;
-    }
-
     public interface CategoryAdapterCallBack {
-        void openUpdateDialog(String category_id, String category_name, int position, String subCategory_num);
+        void downloadRequestDialog(String id, String fileName);
     }
 
 
     private static class ViewHolder{
-        private TextView categoryName, subCategory_numb, categoryEdit;
-        private LinearLayout categorInnerLayout;
+        private TextView fileName, numCategory ;
+        private SquareHeightLinearLayout syncButton, exportButton;
 
         ViewHolder (View view){
-            categoryName = (TextView)view.findViewById(R.id.fragment_category_list_view_category);
-            subCategory_numb = (TextView)view.findViewById(R.id.fragment_category_list_view_quantity);
-            categoryEdit = (TextView)view.findViewById(R.id.fragment_category_list_view_edit);
-            categorInnerLayout = (LinearLayout)view.findViewById(R.id.fragment_category_list_view_inner_layout);
+            fileName = (TextView)view.findViewById(R.id.activity_file_list_view_item_file_name);
+            numCategory = (TextView)view.findViewById(R.id.activity_file_list_view_item_num_category);
 
+            syncButton = view.findViewById(R.id.activity_file_list_view_item_sync);
+            exportButton = view.findViewById(R.id.activity_file_list_view_item_export);
         }
     }
 }

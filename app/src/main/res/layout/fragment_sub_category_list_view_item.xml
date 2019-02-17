@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:id="@+id/fragment_category_list_view_parent_layout"
+    android:id="@+id/sub_category_list_view_parent_layout"
     android:background="@color/default_background"
     android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
-        android:id="@+id/fragment_sub_category_list_view_inner_layout"
+        android:id="@+id/sub_category_list_view_inner_layout"
         android:background="@color/default_background"
         android:layout_height="?actionBarSize">
 
@@ -20,10 +20,11 @@
             android:textColor="#000000"
             android:textStyle="bold"
             android:text="10"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:gravity="center"
-            android:id="@+id/fragment_sub_category_list_view_no"/>
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:id="@+id/sub_category_list_view_no"/>
 
         <TextView
             android:layout_width="0dp"
@@ -33,22 +34,49 @@
             android:textColor="#000000"
             android:textStyle="bold"
             android:textSize="12sp"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:text="8852023664101"
-            android:id="@+id/fragment_sub_category_list_view_barcode"/>
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:id="@+id/sub_category_list_view_barcode"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="10"
+            android:layout_weight="0.9"
+            android:text="M"
+            android:maxLines="1"
             android:textColor="#000000"
             android:textStyle="bold"
             android:gravity="center"
-            android:maxLines="1"
+            android:textSize="12sp"
             android:ellipsize="end"
-            android:id="@+id/fragment_sub_category_list_view_quantity"/>
+            android:id="@+id/sub_category_list_view_system_status"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.9"
+            android:text="10"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:ellipsize="end"
+            android:id="@+id/sub_category_list_view_system_quantity"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.9"
+            android:text="10"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:ellipsize="end"
+            android:id="@+id/sub_category_list_view_check_quantity"/>
 
         <TextView
             android:layout_width="0dp"
@@ -58,8 +86,9 @@
             android:textColor="#000000"
             android:gravity="center"
             android:maxLines="1"
+            android:textSize="12sp"
             android:ellipsize="end"
-            android:id="@+id/fragment_sub_category_list_view_date"/>
+            android:id="@+id/sub_category_list_view_date"/>
 
         <TextView
             android:layout_width="0dp"
@@ -69,8 +98,17 @@
             android:text="4:47 PM"
             android:gravity="center"
             android:maxLines="1"
+            android:textSize="12sp"
             android:ellipsize="end"
-            android:id="@+id/fragment_sub_category_list_view_time"/>
+            android:id="@+id/sub_category_list_view_time"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:id="@+id/sub_category_list_view_check_box"/>
+
     </LinearLayout>
 
 </LinearLayout>
+

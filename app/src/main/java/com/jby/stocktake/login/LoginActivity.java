@@ -20,7 +20,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.jby.stocktake.home.HomeActivity;
+import com.jby.stocktake.exportFeature.file.ExportFileActivity;
 import com.jby.stocktake.R;
 import com.jby.stocktake.others.CustomViewPager;
 import com.jby.stocktake.others.ViewPagerAdapter;
@@ -118,7 +118,7 @@ public class LoginActivity extends AppCompatActivity implements ViewPager.OnPage
     public void onStart() {
         super.onStart();
         if (!SharedPreferenceManager.getUserID(this).equals("default")) {
-            Intent i = new Intent(this, HomeActivity.class);
+            Intent i = new Intent(this, ExportFileActivity.class);
             startActivity(i);
             finish();
         }
@@ -162,6 +162,7 @@ public class LoginActivity extends AppCompatActivity implements ViewPager.OnPage
     }
 
     public String getIMEI() {
+        imei = "null";
         if(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_PHONE_STATE)
                 == PackageManager.PERMISSION_GRANTED){

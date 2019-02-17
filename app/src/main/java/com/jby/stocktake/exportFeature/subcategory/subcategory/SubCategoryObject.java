@@ -4,20 +4,21 @@ package com.jby.stocktake.exportFeature.subcategory.subcategory;
 public class SubCategoryObject {
     private String id;
     private String barcode;
-    private String quantity;
+    private String checkQuantity, systemQuantity;
     private String date;
     private String time;
-    private String no;
 
-    public SubCategoryObject(String id, String barcode, String quantity, String date, String time) {
+
+    public SubCategoryObject(String id, String barcode, String checkQuantity, String systemQuantity, String date, String time) {
         this.id = id;
         this.barcode = barcode;
-        this.quantity = quantity;
+        this.checkQuantity = checkQuantity;
+        this.systemQuantity = systemQuantity;
         this.date = date;
         this.time = time;
     }
 
-     public String getId() {
+    public String getId() {
         return id;
     }
 
@@ -25,8 +26,12 @@ public class SubCategoryObject {
         return barcode;
     }
 
-    public String getQuantity() {
-        return quantity;
+    public String getCheckQuantity() {
+        return checkQuantity;
+    }
+
+    public String getSystemQuantity() {
+        return systemQuantity;
     }
 
     public String getDate() {
@@ -37,7 +42,16 @@ public class SubCategoryObject {
         return time;
     }
 
-    String getNo() {
-        return no;
+    @Override
+    public String toString() {
+        return "{" +
+                "id:'" + id + '\'' +
+                ", barcode:'" + barcode + '\'' +
+                ", checkQuantity:'" + checkQuantity + '\'' +
+                ", systemQuantity:'" + systemQuantity + '\'' +
+                ", date:'" + date + '\'' +
+                ", time:'" + time + '\'' +
+                "}";
     }
 }
+

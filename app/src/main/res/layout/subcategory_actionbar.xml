@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:background="#000000"
     android:id="@+id/actionBar"
-    android:layout_height="?actionBarSize">
+    android:layout_height="?android:actionBarSize">
 
     <com.jby.stocktake.others.SquareHeightLinearLayout
         android:layout_width="match_parent"
@@ -38,20 +38,6 @@
         android:orientation="horizontal"
         android:layout_toEndOf="@+id/actionBar_title"
         android:layout_height="match_parent">
-
-        <com.jby.stocktake.others.SquareHeightLinearLayout
-            android:layout_width="match_parent"
-            android:id="@+id/actionBar_upload"
-            android:visibility="gone"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="15dp"
-                android:src="@drawable/sync_icon"/>
-
-        </com.jby.stocktake.others.SquareHeightLinearLayout>
 
         <com.jby.stocktake.others.SquareHeightLinearLayout
             android:layout_width="match_parent"

@@ -31,30 +31,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".exportFeature.category.ExportCategoryActivity" />
-        <activity
-            android:name=".exportFeature.subcategory.SubCategoryActivity"
-            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name=".exportFeature.subcategory.SubCategoryActivity" android:windowSoftInputMode="stateHidden" />
         <activity android:name=".exportFeature.subcategory.subcategory.takeAction.TakeActionActivity" />
-
         <activity android:name=".setting.SettingActivity" />
-
-        <activity android:name=".importFeature.category.ImportCategory" />
         <activity android:name=".home.HomeActivity" />
-        <activity
-            android:name=".importFeature.sub_category.subCategory.subCategory.subCategory.ImportSubCategoryActivity"
-            android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".exportFeature.file.ExportFileActivity" />
-        <activity android:name=".importFeature.file.ImportFileActivity" />
-        <activity android:name=".importFeature.sub_category.subCategory.subCategory.takeAction.ImportTakeActionActivity" />
+        <activity android:name=".exportFeature.file.ExportFileActivity"/>
+        <activity android:name=".exportFeature.category.ExportCategoryActivity" />
         <activity android:name=".setting.UserAccountActivity" />
-        <activity android:name=".setting.ContactUsActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.SENDTO" />
-                <data android:scheme="mailto" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".setting.ContactUsActivity"/>
 
         <!-- Pushy Declarations -->
 

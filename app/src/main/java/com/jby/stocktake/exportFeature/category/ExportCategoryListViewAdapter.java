@@ -54,7 +54,6 @@ public class ExportCategoryListViewAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
         ExportCategoryListViewObject object = getItem(i);
-        Log.d("HAHAHA","LOL" +object.getCategory());
         String quantity = object.getSubCategory_numb() + " Items";
         viewHolder.categoryName.setText(object.getCategory());
         viewHolder.subCategory_numb.setText(quantity);

@@ -25,10 +25,8 @@ import android.widget.Toast;
 
 import com.jby.stocktake.R;
 import com.jby.stocktake.exportFeature.file.ExportFileActivity;
-import com.jby.stocktake.importFeature.file.ImportFileActivity;
 import com.jby.stocktake.login.LoginActivity;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
-import com.jby.stocktake.setting.DeviceNameDialog;
 import com.jby.stocktake.setting.SettingActivity;
 import com.jby.stocktake.shareObject.ApiDataObject;
 import com.jby.stocktake.shareObject.ApiManager;
@@ -44,8 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 
-public class HomeActivity extends AppCompatActivity implements OnClickListener,
-        DeviceNameDialog.DeviceNameDialogCallback{
+public class HomeActivity extends AppCompatActivity implements OnClickListener {
     private ImageView homeActivityExport, homeActivityImport;
     private SquareHeightLinearLayout homeActivitySettingButton;
     private ProgressBar homeActivityProgressBar;
@@ -58,7 +55,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     Bundle bundle;
     int checkUserActivation = 0;
 
-//    ProgressDialog pd;
+    //    ProgressDialog pd;
     Handler handler;
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
@@ -73,9 +70,9 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     }
 
     private void objectInitialize() {
-        homeActivityExport = (ImageView)findViewById(R.id.activity_home_export);
-        homeActivityImport = (ImageView)findViewById(R.id.activity_home_import);
-        homeActivitySettingButton = (SquareHeightLinearLayout)findViewById(R.id.actionBar_setting);
+        homeActivityExport = (ImageView) findViewById(R.id.activity_home_export);
+        homeActivityImport = (ImageView) findViewById(R.id.activity_home_import);
+        homeActivitySettingButton = (SquareHeightLinearLayout) findViewById(R.id.actionBar_setting);
         homeActivityProgressBar = findViewById(R.id.activity_home_progress_bar);
         homeActivityMainLayout = findViewById(R.id.activity_home_main_layout);
         homeActivityActionBar = findViewById(R.id.actionBar);
@@ -83,6 +80,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         handler = new Handler();
         fm = getSupportFragmentManager();
     }
+
     private void objectSetting() {
         homeActivityExport.setOnClickListener(this);
         homeActivityImport.setOnClickListener(this);
@@ -91,38 +89,26 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
 //        muteDefaultSound();
     }
 
-    public void checkingSetting(){
+    public void checkingSetting() {
         String deviceName = SharedPreferenceManager.getDeviceName(this);
-        if(!deviceName.equals("")){
+        if (!deviceName.equals("")) {
             Bundle bundle = getIntent().getExtras();
-            if(bundle != null)
+            if (bundle != null)
                 checkUserActivation = bundle.getInt("status");
 
-            if(checkUserActivation == 0)
-            {
-                if(isNetworkAvailable(this)){
+            if (checkUserActivation == 0) {
+                if (isNetworkAvailable(this)) {
 //                    pd.setMessage("Loading...");
                     startUp(checkUserActivation);
-                }
-                else
+                } else
                     Toast.makeText(this, "No Network Available", Toast.LENGTH_SHORT).show();
             }
         }
-        else{
-            popOutDeviceNameDialog();
-        }
     }
 
-    public void popOutDeviceNameDialog(){
-        dialogFragment = new DeviceNameDialog();
-        bundle = new Bundle();
-        bundle.putString("from", "home");
-        dialogFragment.setArguments(bundle);
-        dialogFragment.show(fm, "");
-    }
 
-    public void startUp(int status){
-        if(status != 1){
+    public void startUp(int status) {
+        if (status != 1) {
 //            pd.show();
             progressBarVisibility(true);
             handler.postDelayed(new Runnable() {
@@ -130,28 +116,22 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
                 public void run() {
                     checkUserActivation();
                 }
-            },500);
+            }, 500);
         }
     }
 
-    public void muteDefaultSound(){
-        AudioManager audio = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        if(audio != null)
+    public void muteDefaultSound() {
+        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audio != null)
             audio.setRingerMode(0);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.activity_home_export:
                 clickEffect(homeActivityExport);
                 intent = new Intent(this, ExportFileActivity.class);
-                startActivity(intent);
-                finish();
-                break;
-            case R.id.activity_home_import:
-                clickEffect(homeActivityImport);
-                intent = new Intent(this, ImportFileActivity.class);
                 startActivity(intent);
                 finish();
                 break;
@@ -164,7 +144,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     }
 
 
-    public void exit(){
+    public void exit() {
         if (exit) {
             System.exit(0); // finish activity
         } else {
@@ -180,7 +160,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         }
     }
 
-    public void clickEffect(View view){
+    public void clickEffect(View view) {
         Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
         animation1.setDuration(500);
         view.startAnimation(animation1);
@@ -191,14 +171,14 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         exit();
     }
 
-    public void checkUserActivation(){
+    public void checkUserActivation() {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("user_id", SharedPreferenceManager.getUserID(this)));
         apiDataObjectArrayList.add(new ApiDataObject("token", SharedPreferenceManager.getDeviceToken(this)));
         apiDataObjectArrayList.add(new ApiDataObject("version", SharedPreferenceManager.getVersion(this)));
 
-        Log.d("HomeActivity", "user_id" +SharedPreferenceManager.getUserID(this));
-        Log.d("HomeActivity", "version" +SharedPreferenceManager.getVersion(this));
+        Log.d("HomeActivity", "user_id" + SharedPreferenceManager.getUserID(this));
+        Log.d("HomeActivity", "version" + SharedPreferenceManager.getVersion(this));
 
         asyncTaskManager = new AsyncTaskManager(
                 this,
@@ -212,7 +192,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         doingInBackground();
     }
 
-    public void doingInBackground(){
+    public void doingInBackground() {
 
         asyncTaskManager.execute();
 
@@ -228,23 +208,18 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
 //                        pd.dismiss();
                         progressBarVisibility(false);
 
-                    }
-                    else if (jsonObjectLoginResponse.getString("status").equals("2")) {
+                    } else if (jsonObjectLoginResponse.getString("status").equals("2")) {
                         almostExpired();
 
-                    }
-                    else if (jsonObjectLoginResponse.getString("status").equals("3")) {
+                    } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
                         expiredDialog();
 
-                    }
-                    else if(jsonObjectLoginResponse.getString("status").equals("4")){
+                    } else if (jsonObjectLoginResponse.getString("status").equals("4")) {
                         Toast.makeText(this, "Something error with server! Try it later!", Toast.LENGTH_SHORT).show();
-                    }
-                    else if (jsonObjectLoginResponse.getString("status").equals("5")) {
+                    } else if (jsonObjectLoginResponse.getString("status").equals("5")) {
                         getNewVersion(jsonObjectLoginResponse.getString("url"));
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(this, "Network Error!", Toast.LENGTH_SHORT).show();
                 }
 
@@ -285,7 +260,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         alert.show();
     }
 
-    public void expiredDialog(){
+    public void expiredDialog() {
         dialogFragment = new HomeExpireDialog();
         dialogFragment.show(fm, "");
     }
@@ -314,13 +289,12 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // check if the request code is same as what is passed  here it is 2
-        if(resultCode == 3)
-        {
+        if (resultCode == 3) {
             logOutSetting();
         }
     }
 
-    public void logOutSetting(){
+    public void logOutSetting() {
         SharedPreferenceManager.setUserID(this, "default");
         SharedPreferenceManager.setUserPassword(this, "default");
         SharedPreferenceManager.setDeviceToken(this, "default");
@@ -335,7 +309,7 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
             NetworkInfo[] info = connectivity.getAllNetworkInfo();
             if (info != null) {
                 for (int i = 0; i < info.length; i++) {
-                    Log.w("INTERNET:",String.valueOf(i));
+                    Log.w("INTERNET:", String.valueOf(i));
                     if (info[i].getState() == NetworkInfo.State.CONNECTED) {
                         Log.w("INTERNET:", "connected!");
                         return true;
@@ -346,19 +320,13 @@ public class HomeActivity extends AppCompatActivity implements OnClickListener,
         return false;
     }
 
-    @Override
-    public void deviceNameSetting() {
-
-    }
-
-    private void progressBarVisibility(boolean show){
-        if(show){
+    private void progressBarVisibility(boolean show) {
+        if (show) {
             homeActivityProgressBar.setVisibility(View.VISIBLE);
             homeActivityMainLayout.setVisibility(View.GONE);
             homeActivitySettingButton.setEnabled(false);
             homeActivityActionBar.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             homeActivityProgressBar.setVisibility(View.GONE);
             homeActivityMainLayout.setVisibility(View.VISIBLE);
             homeActivitySettingButton.setEnabled(true);

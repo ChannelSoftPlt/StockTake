@@ -70,7 +70,7 @@ public class ExportCategoryUpdateDialog extends DialogFragment implements View.O
             else
                 updateDialogCallBack = (UpdateDialogCallBack) getActivity();
 
-            categoryUpdateDialogEditTextCategory.setText(category_name);
+            categoryUpdateDialogEditTextCategory.append(category_name);
         }
         categoryUpdateDialogButtonCancel.setOnClickListener(this);
         categoryUpdateDialogButtonOK.setOnClickListener(this);

@@ -7,12 +7,12 @@ package com.jby.stocktake.exportFeature.file;
 public class ExportFileListViewObject {
     private String id;
     private String file;
-    private String category_numb;
+    private String numCategory;
 
-    public ExportFileListViewObject(String id, String file, String category_numb) {
+    public ExportFileListViewObject(String id, String file, String numCategory) {
         this.id = id;
         this.file = file;
-        this.category_numb = category_numb;
+        this.numCategory = numCategory;
     }
 
     public String getId() {
@@ -24,6 +24,6 @@ public class ExportFileListViewObject {
     }
 
     String getCategory_numb() {
-        return category_numb;
+        return numCategory;
     }
 }

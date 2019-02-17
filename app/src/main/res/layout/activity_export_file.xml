@@ -16,75 +16,74 @@
         <include
             layout="@layout/subcategory_actionbar"
             android:id="@+id/activity_main_layout_action_bar"
-            android:layout_height="?actionBarSize"
+            android:layout_height="?android:actionBarSize"
             android:layout_width="match_parent"/>
 
         <com.jby.stocktake.others.CustomListView
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_below="@id/activity_main_layout_action_bar"
             android:id="@+id/fragment_category_list_view"
-            android:layout_marginBottom="?actionBarSize"
             android:layout_height="match_parent"/>
 
-        <LinearLayout
+        <ProgressBar
             android:layout_width="match_parent"
+            android:id="@+id/activity_file_loading_bar"
             android:layout_centerInParent="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="120dp"
-            android:gravity="center"
             android:visibility="gone"
-            android:id="@+id/not_found"
-            android:layout_height="wrap_content">
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:drawableTop="@drawable/file_not_found"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textStyle="italic"
-                android:drawablePadding="15dp"
-                android:fontFamily="@string/font_family_condensed"
-                android:textSize="18sp"
-                android:textColor="#000"
-                android:text="@string/label_not_found"/>
-
-        </LinearLayout>
-
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="25dp"
-            android:id="@+id/fragment_category_floating_button"
-            android:layout_above="@id/activity_export_file_progress_layout"
-            android:src="@drawable/fragment_category_floating_button_icon"/>
+            android:progressDrawable="@drawable/edit_progress_bar"
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
+            android:background="@color/white"
+            android:layout_centerInParent="true"
+            android:padding="20dp"
+            android:layout_margin="20dp"
+            android:visibility="gone"
+            android:id="@+id/activity_export_file_download_layout"
             android:orientation="vertical"
-            android:id="@+id/activity_export_file_progress_layout"
             android:layout_height="wrap_content">
 
             <TextView
                 android:layout_width="match_parent"
-                android:padding="5dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="@string/font_family_black"
-                android:id="@+id/activity_export_file_progress_bar_label"
-                android:textColor="#000" />
+                android:padding="5dp"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:text="@string/activity_export_file_label_progress_dialog"/>
 
             <ProgressBar
                 android:layout_width="match_parent"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:id="@+id/activity_export_file_progress_bar"
+                android:id="@+id/activity_file_progress_bar"
                 android:progressDrawable="@drawable/edit_progress_bar"
                 android:layout_height="wrap_content" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_alignParentEnd="true"
+                    android:textColor="@color/transparent_black"
+                    android:textSize="18sp"
+                    android:id="@+id/activity_file_download_max_num"
+                    android:text="/100"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_toStartOf="@id/activity_file_download_max_num"
+                    android:textColor="@color/transparent_black"
+                    android:textSize="18sp"
+                    android:id="@+id/activity_file_download_current_num"
+                    android:text="50"/>
+
+            </RelativeLayout>
 
         </LinearLayout>
 

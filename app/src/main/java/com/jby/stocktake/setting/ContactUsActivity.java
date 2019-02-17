@@ -3,7 +3,6 @@ package com.jby.stocktake.setting;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.Image;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -11,12 +10,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jby.stocktake.R;
-import com.jby.stocktake.login.LoginActivity;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
 
 public class ContactUsActivity extends AppCompatActivity implements View.OnClickListener {

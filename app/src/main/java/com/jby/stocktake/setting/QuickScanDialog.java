@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.jby.stocktake.R;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
@@ -54,7 +55,7 @@ public class QuickScanDialog extends DialogFragment implements View.OnClickListe
         categoryInsertDialogButtonCancel.setOnClickListener(this);
         categoryInsertDialogButtonEnable.setOnClickListener(this);
         quickScanDialogCallBack = (QuickScanDialogCallBack) getActivity();
-        categoryInsertDialogEditTextQuantity.setText(SharedPreferenceManager.getQuickScanQuantity(getActivity()));
+        categoryInsertDialogEditTextQuantity.append(SharedPreferenceManager.getQuickScanQuantity(getActivity()));
     }
 
     @Override
@@ -65,16 +66,23 @@ public class QuickScanDialog extends DialogFragment implements View.OnClickListe
                 break;
 
             case R.id.fragment_category_insert_dialog_button_ok:
-                if(!categoryInsertDialogEditTextQuantity.getText().toString().equals("")){
-                    String quantity = categoryInsertDialogEditTextQuantity.getText().toString();
-                    SharedPreferenceManager.setQuickScanQuantity(getActivity(), quantity);
-                    SharedPreferenceManager.setQuickScan(getActivity(), "1");
-                    quickScanDialogCallBack.quickScanSetting();
-                    dismiss();
-                }
+                if(!categoryInsertDialogEditTextQuantity.getText().toString().equals(""))
+                    checkingInput();
                 else
                     alertMessage();
                 break;
+        }
+    }
+
+    private void checkingInput(){
+        try{
+            Double quantity = Double.valueOf(categoryInsertDialogEditTextQuantity.getText().toString().trim());
+            SharedPreferenceManager.setQuickScanQuantity(getActivity(), String.valueOf(quantity));
+            SharedPreferenceManager.setQuickScan(getActivity(), "1");
+            quickScanDialogCallBack.quickScanSetting();
+            dismiss();
+        }catch (NumberFormatException e){
+            Toast.makeText(getActivity(), "Invalid Barcode!", Toast.LENGTH_SHORT).show();
         }
     }
 

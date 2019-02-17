@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jby.stocktake.exportFeature.file.ExportFileActivity;
 import com.jby.stocktake.home.HomeActivity;
 import com.jby.stocktake.R;
 import com.jby.stocktake.shareObject.AnimationUtility;
@@ -139,7 +140,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
         apiDataObjectArrayList.add(new ApiDataObject("email",email));
         apiDataObjectArrayList.add(new ApiDataObject("password",password));
         apiDataObjectArrayList.add(new ApiDataObject("imei_num", ((LoginActivity)getActivity()).getIMEI()));
-        ;
+
         asyncTaskManager = new AsyncTaskManager(
                 getContext(),
                 new ApiManager().login,
@@ -161,8 +162,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
                         closeKeyBoard();
                         SharedPreferenceManager.setUserID(getActivity(),jsonObjectLoginResponse.getString("user_id"));
                         SharedPreferenceManager.setUserPassword(getActivity(), loginFragmentEditTextPassword.getText().toString());
-                        Intent i = new Intent(getActivity(), HomeActivity.class);
-                        startActivity(i);
+                        startActivity(new Intent(getActivity(), ExportFileActivity.class));
                         getActivity().finish();
                     }
                     else if (jsonObjectLoginResponse.getString("status").equals("2")) {

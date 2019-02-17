@@ -152,4 +152,8 @@
     <string name="activity_import_sub_category_status_more">M</string>
     <string name="activity_import_sub_category_status_less">L</string>
     <string name="activity_import_sub_category_status_balance">B</string>
+    <string name="activity_export_file_label_progress_dialog">Downloading, please waiting...</string>
+    <string name="activity_sub_category_label_selected">0 Selected</string>
+    <string name="activity_sub_category_move_button">Move</string>
+    <string name="sub_category_move_item_dialog_label_move">Please select one category:</string>
 </resources>

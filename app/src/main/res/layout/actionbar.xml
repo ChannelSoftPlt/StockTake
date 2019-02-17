@@ -46,6 +46,20 @@
 
             <com.jby.stocktake.others.SquareHeightLinearLayout
                 android:layout_width="match_parent"
+                android:id="@+id/actionBar_move"
+                android:visibility="gone"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="15dp"
+                    android:src="@drawable/actionbar_move_icon"/>
+
+            </com.jby.stocktake.others.SquareHeightLinearLayout>
+
+            <com.jby.stocktake.others.SquareHeightLinearLayout
+                android:layout_width="match_parent"
                 android:id="@+id/actionBar_filter"
                 android:visibility="gone"
                 android:layout_height="match_parent">

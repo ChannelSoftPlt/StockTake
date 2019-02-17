@@ -8,15 +8,16 @@ import java.util.ArrayList;
 
 public class ApiManager {
     private String domain = "http://www.chafor.net";
+    private String prefix = "/testing";
 //    private String domain = "http://188.166.186.198/~cheewee/stocktake";
 //    login and registration
     public String registerID= domain + "/frontend/registration/register.php";
     public String login= domain + "/frontend/registration/login.php";
     public String forgot= domain + "/frontend/registration/forgot_password.php";
     //    home
-    public String home= domain + "/frontend/main/home.php";
-//    upload
-    public String upload= domain + "/frontend/upload/upload.php";
+    public String home = domain + prefix + "/main/home.php";
+//    download
+    public String download = domain + prefix + "/download/download.php";
     //    export url
     public String exportFile= domain + "/frontend/export/file/export_file.php";
     public String category= domain + "/frontend/export/category/category.php?page=";

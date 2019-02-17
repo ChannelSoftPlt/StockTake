@@ -32,7 +32,7 @@
             android:layout_marginEnd="20dp"
             android:textStyle="bold"
             android:padding="8dp"
-            android:inputType="number"
+            android:inputType="phone"
             android:id="@+id/fragment_setting_quick_scan_dialog_quantity"
             android:background="@drawable/fragment_category_edit_edit_text"
             android:layout_marginTop="20dp"
