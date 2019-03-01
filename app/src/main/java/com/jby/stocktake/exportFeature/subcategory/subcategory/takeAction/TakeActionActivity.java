@@ -1,35 +1,19 @@
 package com.jby.stocktake.exportFeature.subcategory.subcategory.takeAction;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.jby.stocktake.R;
 import com.jby.stocktake.database.CustomSqliteHelper;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
-import com.jby.stocktake.shareObject.ApiDataObject;
-import com.jby.stocktake.shareObject.ApiManager;
-import com.jby.stocktake.shareObject.AsyncTaskManager;
-import com.jby.stocktake.sharePreference.SharedPreferenceManager;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+
 
 public class TakeActionActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener{
@@ -178,7 +162,7 @@ public class TakeActionActivity extends AppCompatActivity implements View.OnClic
     }
 
     public void moveRecord(){
-        int newQuantity = Integer.valueOf(quantity);
+        double newQuantity = Double.valueOf(quantity);
         boolean updateQuantity = customSqliteHelper.getMoveItemQuantity(id, newQuantity);
        if(updateQuantity){
            takeActionObjectArrayList.clear();

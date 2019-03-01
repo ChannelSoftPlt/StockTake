@@ -106,7 +106,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:visibility="gone"
-            android:id="@+id/sub_category_list_view_check_box"/>
+            android:clickable="false"
+        android:id="@+id/sub_category_list_view_check_box"/>
 
     </LinearLayout>
 

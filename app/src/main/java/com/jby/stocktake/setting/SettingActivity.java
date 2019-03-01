@@ -11,10 +11,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
+import android.transition.Explode;
+import android.transition.Fade;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,12 +27,13 @@ import com.jby.stocktake.others.SquareHeightLinearLayout;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener,
-        QuickScanDialog.QuickScanDialogCallBack {
+        QuickScanDialog.QuickScanDialogCallBack, DeviceNameDialog.DeviceNameDialogCallback {
     SwitchCompat settingFragmentScanSoundSwitchButton, settingFragmentReminderSwitchButton, settingFragmentQuickScanSwitchButton;
+    SwitchCompat settingFragmentExportDateSwitchButton, settingFragmentExportTimeSwitchButton;
     RelativeLayout settingFragmentLogOutButton,settingFragmentQuickScanButton, settingFragmentMyAccount, settingFragmentContactUs, settingActivityDeviceName;
     TextView settingFragmentQuickScanQuantity, settingActivityTextViewDeviceName;
     private TextView actionBarTitle, settingFragmentVersionName;
-    private SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton;
+    private ImageView actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
     private ProgressDialog pd;
     private int resultCode = 0;
     Intent intent;
@@ -39,7 +44,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_setting);
+
         objectInitialize();
         objectSetting();
     }
@@ -48,19 +55,25 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingFragmentScanSoundSwitchButton = (SwitchCompat) findViewById(R.id.fragment_setting_scan_sound_button);
         settingFragmentReminderSwitchButton = (SwitchCompat) findViewById(R.id.fragment_setting_reminder_button);
         settingFragmentQuickScanSwitchButton = (SwitchCompat) findViewById(R.id.fragment_setting_quick_scan_switch_button);
+        settingFragmentExportDateSwitchButton = (SwitchCompat) findViewById(R.id.fragment_setting_export_date_switch_button);
+        settingFragmentExportTimeSwitchButton = (SwitchCompat) findViewById(R.id.fragment_setting_export_time_switch_button);
+
         settingFragmentLogOutButton = (RelativeLayout) findViewById(R.id.fragment_setting_log_out_button);
         settingFragmentQuickScanButton = (RelativeLayout) findViewById(R.id.fragment_setting_quick_scan_button);
+
         settingFragmentMyAccount = (RelativeLayout)findViewById(R.id.fragment_setting_user_account);
+        settingActivityDeviceName = (RelativeLayout)findViewById(R.id.fragment_setting_user_device);
 
         settingFragmentQuickScanQuantity = (TextView) findViewById(R.id.fragment_setting_quick_scan_quantity);
+        settingActivityTextViewDeviceName = (TextView) findViewById(R.id.activity_setting_device_name);
 
         settingFragmentVersionName = (TextView) findViewById(R.id.fragment_setting_version_name);
         settingFragmentContactUs = (RelativeLayout)findViewById(R.id.fragment_setting_contact_us);
 //        action bar
         actionBarTitle = (TextView)findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout)findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout)findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout)findViewById(R.id.actionBar_back_button);
+        actionBarSearch = findViewById(R.id.actionBar_search);
+        actionbarSetting = findViewById(R.id.actionBar_setting);
+        actionbarBackButton = findViewById(R.id.actionBar_back_button);
         fm = getSupportFragmentManager();
         pd = new ProgressDialog(this);
 
@@ -71,9 +84,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingFragmentQuickScanButton.setOnClickListener(this);
         settingFragmentMyAccount.setOnClickListener(this);
         settingFragmentContactUs.setOnClickListener(this);
+        settingActivityDeviceName.setOnClickListener(this);
         settingFragmentScanSoundSwitchButton.setOnCheckedChangeListener(this);
         settingFragmentReminderSwitchButton.setOnCheckedChangeListener(this);
         settingFragmentQuickScanSwitchButton.setOnCheckedChangeListener(this);
+        settingFragmentExportTimeSwitchButton.setOnCheckedChangeListener(this);
+        settingFragmentExportDateSwitchButton.setOnCheckedChangeListener(this);
         actionbarBackButton.setOnClickListener(this);
         actionBarTitle.setText(R.string.actionbar_setting_title);
         actionBarSearch.setVisibility(View.GONE);
@@ -121,8 +137,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 intent = new Intent(this, ContactUsActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.fragment_setting_user_device:
+                clickEffect(settingActivityDeviceName);
+                popOutDeviceNameDialog();
+                break;
         }
-}
+    }
 
 
     public void popOutDialog(){
@@ -130,9 +150,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         dialogFragment.show(fm, "");
     }
 
+    public void popOutDeviceNameDialog(){
+        dialogFragment = new DeviceNameDialog();
+        dialogFragment.show(fm, "");
+    }
+
 
     public void quickScanSetting(){
-
         if(!SharedPreferenceManager.getQuickScan(this).equals("0")){
             settingFragmentQuickScanSwitchButton.setChecked(true);
         }
@@ -147,14 +171,25 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    public void checkingSetting() {
+
+    }
+
+
+    @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         switch (compoundButton.getId()){
             case R.id.fragment_setting_reminder_button:
                 reminderSetting(b);
                 break;
-
             case R.id.fragment_setting_scan_sound_button:
                 scanSoundSetting(b);
+                break;
+            case R.id.fragment_setting_export_date_switch_button:
+                exportDateSetting(b);
+                break;
+            case R.id.fragment_setting_export_time_switch_button:
+                exportTimeSetting(b);
                 break;
 
         }
@@ -167,6 +202,19 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             SharedPreferenceManager.setReminder(this, "0");
     }
 
+    public void exportDateSetting(boolean b){
+        if (b)
+            SharedPreferenceManager.setExportDate(this, "1");
+        else
+            SharedPreferenceManager.setExportDate(this, "0");
+    }
+
+    public void exportTimeSetting(boolean b){
+        if (b)
+            SharedPreferenceManager.setExportTime(this, "1");
+        else
+            SharedPreferenceManager.setExportTime(this, "0");
+    }
 
     public void scanSoundSetting(boolean b){
         if (b)
@@ -191,10 +239,21 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         else
             settingFragmentScanSoundSwitchButton.setChecked(false);
 
+        if(SharedPreferenceManager.getExportDate(this).equals("1"))
+            settingFragmentExportDateSwitchButton.setChecked(true);
+        else
+            settingFragmentExportDateSwitchButton.setChecked(false);
+
+        if(SharedPreferenceManager.getExportTime(this).equals("1"))
+            settingFragmentExportTimeSwitchButton.setChecked(true);
+        else
+            settingFragmentExportTimeSwitchButton.setChecked(false);
+
 
         String quickScanQuantity = "default: "+ SharedPreferenceManager.getQuickScanQuantity(this);
         settingFragmentQuickScanQuantity.setText(quickScanQuantity);
         String deviceName = SharedPreferenceManager.getDeviceName(this);
+        settingActivityTextViewDeviceName.setText(deviceName);
     }
 
     public void alertMessage() {

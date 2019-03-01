@@ -1,137 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="?actionBarSize"
-    android:background="#000000"
     android:id="@+id/actionbar_parent_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:background="#000000">
 
-    <com.jby.stocktake.others.SquareHeightLinearLayout
-        android:layout_width="match_parent"
+    <ImageView
         android:id="@+id/actionBar_back_button"
-        android:layout_height="match_parent">
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:padding="15dp"
+        android:src="@drawable/actionbar_back_icon" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="15dp"
-            android:src="@drawable/actionbar_back_icon"/>
-
-    </com.jby.stocktake.others.SquareHeightLinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:maxWidth="100dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/actiobar_title"
-            android:textColor="#ffffff"
-            android:layout_marginStart="10dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_toEndOf="@+id/actionBar_back_button"
-            android:id="@+id/actionBar_title"
-            android:gravity="center_vertical"
-            android:layout_height="match_parent" />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:gravity="end"
-            android:id="@+id/actionBar_icon_layout"
-            android:orientation="horizontal"
-            android:layout_toEndOf="@+id/actionBar_title"
-            android:layout_height="match_parent">
-
-            <com.jby.stocktake.others.SquareHeightLinearLayout
-                android:layout_width="match_parent"
-                android:id="@+id/actionBar_move"
-                android:visibility="gone"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="15dp"
-                    android:src="@drawable/actionbar_move_icon"/>
-
-            </com.jby.stocktake.others.SquareHeightLinearLayout>
-
-            <com.jby.stocktake.others.SquareHeightLinearLayout
-                android:layout_width="match_parent"
-                android:id="@+id/actionBar_filter"
-                android:visibility="gone"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="15dp"
-                    android:src="@drawable/actionbar_filter_icon"/>
-
-            </com.jby.stocktake.others.SquareHeightLinearLayout>
-
-            <com.jby.stocktake.others.SquareHeightLinearLayout
-                android:layout_width="match_parent"
-                android:id="@+id/actionBar_search"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="15dp"
-                    android:src="@drawable/actionbar_search_icon"/>
-
-            </com.jby.stocktake.others.SquareHeightLinearLayout>
-
-
-            <com.jby.stocktake.others.SquareHeightLinearLayout
-                android:layout_width="match_parent"
-                android:id="@+id/actionBar_setting"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="15dp"
-                    android:src="@drawable/actionbar_setting_icon"/>
-
-            </com.jby.stocktake.others.SquareHeightLinearLayout>
-
-        </LinearLayout>
+    <TextView
+        android:id="@+id/actionBar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@+id/actionBar_back_button"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxWidth="100dp"
+        android:maxLines="1"
+        android:text="@string/actiobar_title"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:textStyle="bold" />
 
     <LinearLayout
+        android:id="@+id/actionBar_icon_layout"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:paddingEnd="5dp"
-        android:paddingStart="0dp"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/actionBar_title"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/actionBar_move"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/actionbar_move_icon"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/actionBar_filter"
+            android:layout_width="40dp"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/actionbar_filter_icon" />
+
+        <ImageView
+            android:id="@+id/actionBar_search"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/actionbar_search_icon" />
+
+        <ImageView
+            android:id="@+id/actionBar_setting"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/actionbar_setting_icon" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/actionBar_search_layout"
-        android:visibility="gone"
-        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingStart="0dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone">
 
-        <com.jby.stocktake.others.SquareHeightLinearLayout
-            android:layout_width="match_parent"
+        <ImageView
             android:id="@+id/actionBar_cancel"
-            android:padding="5dp"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="15dp"
-                android:src="@drawable/actionbar_cancel_icon"/>
-
-        </com.jby.stocktake.others.SquareHeightLinearLayout>
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/actionbar_cancel_icon" />
 
         <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/action_bar_search_field"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="#ffffff"
-            android:id="@+id/action_bar_search_field"
-            android:hint="@string/actionbar_search_hint"
-            android:textColorHint="#80ffffff"
             android:gravity="start|center"
+            android:hint="@string/actionbar_search_hint"
+            android:textColor="#ffffff"
+            android:textColorHint="#80ffffff"
             app:backgroundTint="#ffffff" />
 
     </LinearLayout>

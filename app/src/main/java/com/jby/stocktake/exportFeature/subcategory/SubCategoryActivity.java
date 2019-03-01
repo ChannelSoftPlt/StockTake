@@ -1,19 +1,26 @@
 package com.jby.stocktake.exportFeature.subcategory;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -22,6 +29,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -34,12 +42,17 @@ import android.widget.Toast;
 
 import com.jby.stocktake.R;
 import com.jby.stocktake.database.CustomSqliteHelper;
+import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryFilterDialog;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryMoveItemDialog;
 import com.jby.stocktake.login.LoginActivity;
+import com.jby.stocktake.others.CSVWriter;
 import com.jby.stocktake.others.CustomListView;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
 import com.jby.stocktake.setting.SettingActivity;
 import com.jby.stocktake.shareObject.AnimationUtility;
+import com.jby.stocktake.shareObject.ApiManager;
+import com.jby.stocktake.shareObject.CustomToast;
+import com.jby.stocktake.shareObject.NetworkConnection;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryExistedDialog;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryInsertDialog;
@@ -50,18 +63,32 @@ import com.jby.stocktake.exportFeature.subcategory.subcategory.takeAction.TakeAc
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import static com.jby.stocktake.login.LoginActivity.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE;
 
 public class SubCategoryActivity extends AppCompatActivity implements CustomListView.OnDetectScrollListener,
         AbsListView.OnScrollListener, View.OnClickListener, SubCategoryUpdateDialog.SubCategoryUpdateDialogCallBack,
         AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener,
         SubCategoryExistedDialog.ExistedDialogCallBack, SubCategoryInsertDialog.CreateDialogCallBack,
-        SubCategoryListViewAdapter.SubCategoryListViewAdapterCallBack, SubCategoryMoveItemDialog.SubCategoryMoveItemDialogCallBack {
+        SubCategoryListViewAdapter.SubCategoryListViewAdapterCallBack, SubCategoryMoveItemDialog.SubCategoryMoveItemDialogCallBack,
+        SubCategoryFilterDialog.ImportSubCategoryFilterDialogCallBack {
 
     private TextView actionBarTitle;
-    private SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel, actionBarMove;
+    private ImageView actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel, actionBarMove, actionBarFilter;
     private LinearLayout actionBarSearchLayout, actionBarDefaultLayout;
     private EditText actionBarSearchField;
     private View actionBar;
@@ -71,14 +98,14 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     CustomListView subCategoryListView;
     SubCategoryListViewAdapter subCategoryListViewAdapter;
     ArrayList<SubCategoryObject> subCategoryObjectArrayList;
-    ImageView subCategoryFloatingButton;
+    ImageView subCategoryFloatingButton, subCategoryExportButton;
     LinearLayout subCategoryNotFound, subCategoryLabelListView;
 
     private Handler mHandler = new Handler();
     //    SQLite purpose
     CustomSqliteHelper customSqliteHelper;
     //    intent purpose
-    String categoryID, categoryName, selectedBarcode, fromListView, fileID;
+    String categoryID, categoryName, selectedBarcode, fromListView = "categoryLV", fileID;
     //    actionbar purpose
     private InputMethodManager imm;
     //    paging purpose
@@ -97,16 +124,19 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     SparseBooleanArray checkDeleteItem;
     List<String> list = new ArrayList<String>();
     ActionMode actionMode;
-    MediaPlayer mp;
-    //    for update category quantity purpose
-    private int initialQuantity = 0;
+    MediaPlayer scanSound, errorSound;
     //    prevent reload the data
     private boolean load = false;
+    //prevent scan too fast
+    private boolean enableScan = true;
     //move purpose
-    SparseBooleanArray checkMoveItem;
     private RelativeLayout subCategoryActivityMoveLayout;
     private TextView subCategoryActivityMoveLabel;
     private boolean showMoveLayout = false;
+    //all file or category
+    private boolean readAllFile = false;
+    //filter purpose
+    private String filter = "all";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,17 +147,17 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     }
 
     private void objectInitialize() {
-
         actionBarTitle = (TextView) findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout) findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout) findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout) findViewById(R.id.actionBar_back_button);
+        actionBarSearch =  findViewById(R.id.actionBar_search);
+        actionbarSetting =  findViewById(R.id.actionBar_setting);
+        actionbarBackButton = findViewById(R.id.actionBar_back_button);
+        actionBarCancel =  findViewById(R.id.actionBar_cancel);
         actionBar = findViewById(R.id.activity_main_layout_action_bar);
         actionBarSearchLayout = (LinearLayout) findViewById(R.id.actionBar_search_layout);
         actionBarDefaultLayout = (LinearLayout) findViewById(R.id.actionBar_icon_layout);
-        actionBarCancel = (SquareHeightLinearLayout) findViewById(R.id.actionBar_cancel);
         actionBarSearchField = (EditText) findViewById(R.id.action_bar_search_field);
         actionBarMove = findViewById(R.id.actionBar_move);
+        actionBarFilter = findViewById(R.id.actionBar_filter);
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         subCategoryScanResult = (EditText) findViewById(R.id.scanResult);
@@ -136,16 +166,18 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         subCategoryNotFound = (LinearLayout) findViewById(R.id.not_found);
         subCategoryLabelListView = (LinearLayout) findViewById(R.id.fragment_sub_category_list_view_label);
 
+        subCategoryExportButton = findViewById(R.id.fragment_sub_category_export_button);
+
         subCategoryActivityMoveLayout = findViewById(R.id.activity_sub_category_move_layout);
         subCategoryActivityMoveLabel = findViewById(R.id.activity_sub_category_label_selected);
-        mp = MediaPlayer.create(this, R.raw.scanner_sound);
+        scanSound = MediaPlayer.create(this, R.raw.scanner_sound);
+        errorSound = MediaPlayer.create(this, R.raw.error_sound);
 
         subCategoryObjectArrayList = new ArrayList<>();
 
         fm = getSupportFragmentManager();
 
         customSqliteHelper = new CustomSqliteHelper(this);
-
     }
 
     private void objectSetting() {
@@ -155,9 +187,11 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         actionbarBackButton.setOnClickListener(this);
         actionBarCancel.setOnClickListener(this);
         actionBarMove.setOnClickListener(this);
+        actionBarFilter.setOnClickListener(this);
 
         actionbarBackButton.setVisibility(View.VISIBLE);
         actionBarMove.setVisibility(View.VISIBLE);
+        actionBarFilter.setVisibility(View.VISIBLE);
 
         subCategoryListView.setOnDetectScrollListener(this);
         subCategoryListView.setOnScrollListener(this);
@@ -165,6 +199,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         subCategoryListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         subCategoryListView.setMultiChoiceModeListener(this);
         subCategoryFloatingButton.setOnClickListener(this);
+        subCategoryExportButton.setOnClickListener(this);
         subCategoryScanResult.setOnClickListener(this);
 
         subCategoryScanResult.addTextChangedListener(new MyTextWatcher(subCategoryScanResult));
@@ -177,17 +212,20 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         if (!load) {
             Bundle bundle = getIntent().getExtras();
             if (bundle != null) {
-                categoryID = bundle.getString("category_id");
-                categoryName = bundle.getString("category_name");
-                fromListView = bundle.getString("fromListView");
-                selectedBarcode = bundle.getString("selected_barcode");
+                readAllFile = bundle.getBoolean("readAllFile");
+                if (readAllFile) {
+                    categoryName = "All File";
+                } else {
+                    categoryID = bundle.getString("category_id");
+                    fromListView = bundle.getString("fromListView");
+                    selectedBarcode = bundle.getString("selected_barcode");
+                    categoryName = bundle.getString("category_name");
+                }
                 fileID = bundle.getString("file_id");
                 actionBarTitle.setText(categoryName);
                 setUpListView();
-
                 if (fromListView.equals("categoryLV"))
                     fetchAllSubCategoryData();
-
                 else
                     startSearchFunction(selectedBarcode);
                 load = true;
@@ -198,16 +236,9 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
 
     @Override
     public void onBackPressed() {
-        if (actionBarSearchLayout.getVisibility() == View.VISIBLE) {
-            showSearchView(false);
-        } else {
-            if (initialQuantity != subCategoryObjectArrayList.size()) {
-                intent = new Intent();
-                intent.putExtra("quantity", String.valueOf(subCategoryObjectArrayList.size()));
-                setResult(2, intent);
-            }
-            finish();
-        }
+        if (actionBarSearchLayout.getVisibility() == View.VISIBLE) showSearchView(false);
+        else if (subCategoryActivityMoveLayout.getVisibility() == View.VISIBLE) showMoveLayout();
+        else super.onBackPressed();
     }
 
     @Override
@@ -228,6 +259,9 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             case R.id.actionBar_move:
                 showMoveLayout();
                 break;
+            case R.id.actionBar_filter:
+                openFilterDialog();
+                break;
             case R.id.fragment_sub_category_floating_button:
                 view.setEnabled(false);
                 openInsertDialog();
@@ -236,6 +270,11 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                 final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null)
                     imm.hideSoftInputFromWindow(subCategoryScanResult.getWindowToken(), 0);
+                break;
+            case R.id.fragment_sub_category_export_button:
+                if (new NetworkConnection(this).checkNetworkConnection()) uploadFileDialog();
+                else
+                    Toast.makeText(this, "Please connect to a network!", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -261,7 +300,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             switch (view.getId()) {
                 case R.id.scanResult:
                     if (!SharedPreferenceManager.getScanSound(SubCategoryActivity.this).equals("0"))
-                        mp.start();
+                        scanSound.start();
                     break;
             }
         }
@@ -277,7 +316,9 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                                 if (SharedPreferenceManager.getQuickScan(SubCategoryActivity.this).equals("0")) {
                                     openInsertDialog();
                                 } else {
-                                    insertSubCategoryItem(subCategoryScanResult.getText().toString(), SharedPreferenceManager.getQuickScanQuantity(SubCategoryActivity.this));
+                                    if (enableScan)
+                                        insertSubCategoryItem(subCategoryScanResult.getText().toString(), SharedPreferenceManager.getQuickScanQuantity(SubCategoryActivity.this));
+                                    enableScan = false;
                                 }
                                 subCategoryScanResult.setText("");
                             }
@@ -323,14 +364,19 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         dialogFragment.dismiss();
     }
 
-    public void openExistedDialog(String barcode, String quantity) {
-        dialogFragment = new SubCategoryExistedDialog();
-        bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        bundle.putString("quantity", quantity);
-        bundle.putString("category_id", (categoryID));
-        dialogFragment.setArguments(bundle);
-        dialogFragment.show(fm, "");
+    public void openExistedDialog(final String barcode, final String quantity) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialogFragment = new SubCategoryExistedDialog();
+                bundle = new Bundle();
+                bundle.putString("barcode", barcode);
+                bundle.putString("quantity", quantity);
+                bundle.putString("category_id", (categoryID));
+                dialogFragment.setArguments(bundle);
+                dialogFragment.show(fm, "");
+            }
+        });
     }
 
     @Override
@@ -484,37 +530,46 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     @Override
     public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, final int totalItemCount) {
         final int position = firstVisibleItem + visibleItemCount;
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!finishLoadAll) {
-                    // Check if bottom has been reached
-                    if (position >= totalItemCount && totalItemCount > 0 && !isLoading && isScroll) {
-                        isLoading = true;
-                        page++;
-                        fetchAllSubCategoryData();
-                    }
-                }
+        if (!finishLoadAll) {
+            // Check if bottom has been reached
+            if (position >= totalItemCount && totalItemCount > 0 && !isLoading && isScroll) {
+                isLoading = true;
+                page++;
+                fetchAllSubCategoryData();
             }
-        }, 50);
+        }
         subCategoryListView.setClickable(false);
     }
 
     /*-----------------------------------------------------------category CRUD purpose--------------------------------------------------------------------*/
     @Override
-    public void insertSubCategoryItem(String barcode, String quantity) {
-        double scanQuantity = Double.valueOf(quantity);
-        int insertSubCategory = customSqliteHelper.saveSubCategory(fileID, count, categoryID, barcode, scanQuantity);
-        if (insertSubCategory == 1) {
-            reset();
-            fetchAllSubCategoryData();
-        } else if (insertSubCategory == 2)
-            Toast.makeText(this, "Failed to store this record", Toast.LENGTH_SHORT).show();
-        else
-            openExistedDialog(barcode, quantity);
+    public void insertSubCategoryItem(final String barcode, final String quantity) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final double scanQuantity = Double.valueOf(quantity);
+                long insertSubCategory = customSqliteHelper.saveSubCategory(readAllFile, fileID, count, categoryID, barcode, scanQuantity);
 
-        subCategoryScanResult.setEnabled(true);
-        subCategoryScanResult.requestFocus();
+                if (insertSubCategory == 1) {
+                    reFetchDateAfterAction();
+                }
+                //record existed
+                else if (insertSubCategory == 3) {
+                    errorSound();
+                    openExistedDialog(barcode, quantity);
+                }
+                //failed to store
+                else if (insertSubCategory == 4)
+                    new CustomToast(SubCategoryActivity.this, "Failed to store this record");
+                    //new record is found (only for scan in all file)
+                else {
+                    errorSound();
+                    recordWithoutCategoryDialog(String.valueOf(insertSubCategory), barcode);
+                }
+                requestFocus(true);
+                enableScan = true;
+            }
+        }).start();
     }
 
     //    open insert dialog
@@ -535,16 +590,33 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     }
 
     @Override
-    public void updateSubCategoryItem(String quantity, String subCategoryId) {
-        int updateSubCategory = customSqliteHelper.updateSubCategory(Double.valueOf(quantity), subCategoryId);
-        if (updateSubCategory == 1) {
-            subCategoryObjectArrayList.clear();
-            fetchAllSubCategoryData();
-            subCategoryListViewAdapter.notifyDataSetChanged();
-        } else if (updateSubCategory == 2)
-            Toast.makeText(this, "Failed to update this record", Toast.LENGTH_SHORT).show();
+    public void updateSubCategoryItem(final String quantity, final String subCategoryId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int updateSubCategory = customSqliteHelper.updateSubCategory(Double.valueOf(quantity), subCategoryId);
+                if (updateSubCategory == 1) {
+                    reFetchDateAfterAction();
+                } else if (updateSubCategory == 2)
+                    new CustomToast(SubCategoryActivity.this, "Failed to update this record");
+                requestFocus(true);
+            }
+        }).start();
+    }
 
-        subCategoryScanResult.requestFocus();
+    private void reFetchDateAfterAction(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        reset();
+                        fetchAllSubCategoryData();
+                    }
+                }, 20);
+            }
+        });
     }
 
     //    update dialog
@@ -569,6 +641,48 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
 
     }
 
+    public void recordWithoutCategoryDialog(final String lastInsertId, final String barcode) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(SubCategoryActivity.this);
+                builder.setTitle("Warning");
+                builder.setMessage("New record for this barcode " + barcode + "! Move it into a category now!");
+                builder.setCancelable(true);
+
+                builder.setPositiveButton(
+                        "Move",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, final int id) {
+                                moveDialog("default", lastInsertId);
+                                dialog.dismiss();
+                            }
+                        });
+
+                builder.setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        reset();
+                        fetchAllSubCategoryData();
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+    }
+
+    private void errorSound() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!SharedPreferenceManager.getScanSound(SubCategoryActivity.this).equals("0"))
+                    errorSound.start();
+            }
+        });
+    }
+
     /*-------------------------------------------------------list view purpose----------------------------------------------------------------------------*/
 
     public void setUpListView() {
@@ -578,6 +692,8 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                 subCategoryListViewAdapter = new SubCategoryListViewAdapter(SubCategoryActivity.this,
                         subCategoryObjectArrayList,
                         categoryID,
+                        readAllFile,
+                        fileID,
                         SubCategoryActivity.this);
                 subCategoryListView.setAdapter(subCategoryListViewAdapter);
             }
@@ -589,8 +705,8 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             @Override
             public void run() {
                 try {
-                    isLoading = false;
-                    JSONArray jsonArray = customSqliteHelper.fetchAllSubCategory(categoryID, page).getJSONArray("sub_category");
+                    JSONArray jsonArray = customSqliteHelper.fetchAllSubCategory(readAllFile, categoryID, filter, fileID, page).getJSONArray("sub_category");
+                    Log.d("haha", "haha: " + jsonArray);
                     if (jsonArray.length() > 0) {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             subCategoryObjectArrayList.add(new SubCategoryObject(
@@ -601,9 +717,13 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                                     jsonArray.getJSONObject(i).getString("date"),
                                     jsonArray.getJSONObject(i).getString("time")
                             ));
+                            isLoading = true;
                         }
-                    } else finishLoadAll = true;
+                    } else {
+                        finishLoadAll = true;
+                    }
                     setListViewVisibility();
+                    isLoading = false;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -640,12 +760,6 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                     adapterView.setEnabled(false);
                     openUpdateDialog(subCategoryObjectArrayList.get(i).getId());
                 }
-                //move item purpose
-//                else {
-//                    Log.d("haha", "haha");
-//                    subCategoryListViewAdapter.toggleMoveSelection(i);
-//                    selectMoveItem();
-//                }
                 break;
         }
     }
@@ -663,7 +777,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
 
     public void searchSubCategoryItem(String keyword) {
         subCategoryObjectArrayList.clear();
-        subCategoryObjectArrayList = customSqliteHelper.searchAllSubCategoryByQuery(categoryID, page, subCategoryObjectArrayList, keyword);
+        subCategoryObjectArrayList = customSqliteHelper.searchAllSubCategoryByQuery(readAllFile, categoryID, filter, fileID, page, subCategoryObjectArrayList, keyword);
         subCategoryListViewAdapter.notifyDataSetChanged();
     }
 
@@ -680,6 +794,15 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         }
     }
 
+    public void selectAllItem(View view) {
+        for (int i = 0; i < subCategoryObjectArrayList.size(); i++) {
+            if (!subCategoryListViewAdapter.getMoveItem().get(i))
+                subCategoryListViewAdapter.toggleMoveSelection(i);
+        }
+        subCategoryListViewAdapter.notifyDataSetChanged();
+        selectMoveItem();
+    }
+
     public void selectMoveItem() {
         String label = subCategoryListViewAdapter.getMoveItemCount() + " Selected";
         subCategoryActivityMoveLabel.setText(label);
@@ -691,19 +814,26 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         requestFocus(true);
     }
 
-    public void openMoveDialog(View view){
+    //for button onclick
+    public void openMoveDialog(View view) {
+        moveDialog("manual", null);
+    }
+
+    private void moveDialog(String type, String selectedIdByDefault) {
         bundle = new Bundle();
         bundle.putString("file_id", fileID);
-        bundle.putString("move_item_id", getMoveItemID());
+        if (type.equals("manual")) bundle.putString("move_item_id", getMoveItemID());
+        else bundle.putString("move_item_id", selectedIdByDefault);
+
         dialogFragment = new SubCategoryMoveItemDialog();
         dialogFragment.setArguments(bundle);
         dialogFragment.show(fm, "");
     }
 
-    private String getMoveItemID(){
+    private String getMoveItemID() {
         StringBuilder moveItemId = new StringBuilder();
-        for(int i = 0; i< subCategoryObjectArrayList.size(); i++){
-            if (subCategoryListViewAdapter.moveItem.get(i)){
+        for (int i = 0; i < subCategoryObjectArrayList.size(); i++) {
+            if (subCategoryListViewAdapter.moveItem.get(i)) {
                 moveItemId.append(subCategoryObjectArrayList.get(i).getId());
                 //check if not last item then add ","
                 moveItemId.append(",");
@@ -712,10 +842,200 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
         return moveItemId.toString().substring(0, moveItemId.toString().length() - 1);
     }
 
-    public void afterMove(){
+    public void afterMove() {
         reset();
-        showMoveLayout();
+        if(showMoveLayout) showMoveLayout();
         fetchAllSubCategoryData();
+    }
+
+    /*------------------------------------------------------------------export file----------------------------------------------------------------------*/
+    public void readPhonePermission() {
+        if (checkReadStatePermission()) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                exportCSV();
+            }
+        }
+    }
+
+    public boolean checkReadStatePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    exportCSV();
+                }
+            } else {
+                checkReadStatePermission();
+            }
+        }
+    }
+
+    public void exportCSV() {
+        subCategoryExportButton.setEnabled(false);
+        Toast.makeText(this, "Uploading file...", Toast.LENGTH_SHORT).show();
+//      create directory
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Chafor");
+        try {
+            if (dir.mkdir()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Directory is not created");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        exportCsvFile(dir);
+    }
+
+    private void exportCsvFile(final File dir) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String fileName = SharedPreferenceManager.getDeviceName(SubCategoryActivity.this) + "_" + customSqliteHelper.fileName(fileID) + ".csv";
+                File file = new File(dir.getAbsolutePath(), fileName);
+                try {
+                    CSVWriter csvWriter = customSqliteHelper.createCSVFile(categoryID, fileID, new FileWriter(file));
+                    csvWriter.close();
+
+                    uploadFile(file);
+                } catch (Exception sqlEx) {
+                    new CustomToast(SubCategoryActivity.this, "Something Went Wrong!");
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        subCategoryExportButton.setEnabled(true);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void uploadFile(File file) {
+        String fileExtension = getFileExtension(file.getPath());
+        RequestBody file_body = RequestBody.create(MediaType.parse(fileExtension), file);
+
+        RequestBody request_body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("extension", fileExtension)
+                .addFormDataPart("user_id", SharedPreferenceManager.getUserID(this))
+                .addFormDataPart("uploaded_file", file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/") + 1), file_body)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(new ApiManager().upload)
+                .post(request_body)
+                .build();
+
+        try {
+            Response response = new OkHttpClient().newCall(request).execute();
+            try {
+                String status = new JSONObject(response.body().string()).getString("status");
+                Log.d("haha", "haha: " + status);
+                switch (status) {
+                    case "1":
+                        new CustomToast(this, "Upload Successfully!");
+                        break;
+                    case "3":
+                        reachedMaxNumOfFile();
+                        break;
+                    default:
+                        new CustomToast(this, "Failed to Upload!");
+                        break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (!response.isSuccessful()) {
+                new CustomToast(SubCategoryActivity.this, "Failed to Upload!");
+                throw new IOException("Error : " + response);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getFileExtension(String path) {
+        String[] paths = path.split("\\.");
+        return paths[paths.length - 1];
+    }
+
+    public void uploadFileDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Warning");
+        builder.setMessage("Are you sure that you want to export and upload your file to cloud now?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "I'm Sure",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        readPhonePermission();
+                    }
+                });
+        builder.setNegativeButton(
+                "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void reachedMaxNumOfFile() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SubCategoryActivity.this);
+                builder.setTitle("Warning");
+                builder.setMessage("");
+                builder.setCancelable(true);
+
+                builder.setPositiveButton(
+                        "I'Got It",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+    }
+
+    /*----------------------------------------------------------------------filter purpose---------------------------------------------------------------*/
+    @Override
+    public void filter(String selectedFilter) {
+        filter = selectedFilter;
+        reset();
+        fetchAllSubCategoryData();
+    }
+
+    //    open filter dialog
+    public void openFilterDialog() {
+        dialogFragment = new SubCategoryFilterDialog();
+        bundle = new Bundle();
+        bundle.putString("current_filter", filter);
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(fm, "");
     }
 
     /*--------------------------------------------------------other--------------------------------------------------------------------------------------*/
@@ -733,6 +1053,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                     if (imm != null)
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     new AnimationUtility().slideOut(SubCategoryActivity.this, subCategoryFloatingButton);
+                    new AnimationUtility().slideOut(SubCategoryActivity.this, subCategoryExportButton);
 
                 }
             }, 200);
@@ -748,6 +1069,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                     if (imm != null)
                         imm.hideSoftInputFromWindow(actionBarSearchField.getWindowToken(), 0);
                     new AnimationUtility().fastFadeInVisible(SubCategoryActivity.this, subCategoryFloatingButton);
+                    new AnimationUtility().fastFadeInVisible(SubCategoryActivity.this, subCategoryExportButton);
                     new AnimationUtility().fastFadeInVisible(SubCategoryActivity.this, subCategoryScanResult);
                     requestFocus(true);
                 }
@@ -805,15 +1127,26 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             new AnimationUtility().minimize(this, actionBar);
     }
 
-    public void requestFocus(boolean focus) {
-        subCategoryScanResult.setEnabled(focus);
-        if (focus) subCategoryScanResult.requestFocus();
+    public void requestFocus(final boolean focus) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                subCategoryScanResult.setEnabled(focus);
+                if (focus) subCategoryScanResult.requestFocus();
+            }
+        });
     }
 
     public void reset() {
-        page = 1;
-        finishLoadAll = false;
-        subCategoryObjectArrayList.clear();
-        subCategoryListViewAdapter.notifyDataSetChanged();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                page = 1;
+                finishLoadAll = false;
+                subCategoryObjectArrayList.clear();
+                subCategoryListViewAdapter.notifyDataSetChanged();
+            }
+        });
     }
+
 }

@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +20,7 @@ import com.jby.stocktake.others.SquareHeightLinearLayout;
 public class ContactUsActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView contactUsActivityCallUs, contactUsActivityEmailUs;
     private TextView actionBarTitle;
-    private SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton;
+    private ImageView actionBarSearch, actionbarSetting, actionbarBackButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,9 @@ public class ContactUsActivity extends AppCompatActivity implements View.OnClick
 
 
         actionBarTitle = (TextView)findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout)findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout)findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout)findViewById(R.id.actionBar_back_button);
+        actionBarSearch = findViewById(R.id.actionBar_search);
+        actionbarSetting = findViewById(R.id.actionBar_setting);
+        actionbarBackButton = findViewById(R.id.actionBar_back_button);
 
         contactUsActivityCallUs = (TextView)findViewById(R.id.activity_contact_us_call_us);
         contactUsActivityEmailUs = (TextView)findViewById(R.id.activity_contact_us_email_us);

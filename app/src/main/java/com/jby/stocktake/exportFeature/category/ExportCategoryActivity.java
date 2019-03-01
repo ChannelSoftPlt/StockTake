@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import android.widget.Toast;
 import com.jby.stocktake.R;
 import com.jby.stocktake.database.CustomSqliteHelper;
 import com.jby.stocktake.exportFeature.category.searchFeature.ExportCategorySearchDialog;
-import com.jby.stocktake.home.HomeActivity;
 import com.jby.stocktake.login.LoginActivity;
 import com.jby.stocktake.others.CustomListView;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
@@ -43,13 +41,14 @@ import com.jby.stocktake.shareObject.CustomToast;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 import com.jby.stocktake.exportFeature.subcategory.SubCategoryActivity;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.jby.stocktake.database.CustomSqliteHelper.TB_SUB_CATEGORY;
 
 public class ExportCategoryActivity extends AppCompatActivity implements View.OnClickListener,
         ExportCategoryInsertDialog.CreateDialogCallBack, ExportCategoryListViewAdapter.CategoryAdapterCallBack,
@@ -59,15 +58,18 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
         SwipeRefreshLayout.OnRefreshListener {
 
     private TextView actionBarTitle;
-    private SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
+    private ImageView actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
     private LinearLayout actionBarSearchLayout, actionBarDefaultLayout;
     private EditText actionBarSearchField;
     private View actionBarLayout;
+    //list view
     private ExportCategoryListViewAdapter categoryFragmentListViewAdapter;
     private ArrayList<ExportCategoryListViewObject> categoryFragmentListViewObjectArrayList;
     private CustomListView categoryFragmentListView;
+
     private ImageView categoryFragmentFloatingButton;
-    private LinearLayout categoryFragmentResultNotFound;
+    private LinearLayout categoryFragmentResultNotFound, categoryActivityAllFileLayout;
+    private TextView categoryActivityAllFileQuantity;
     private SwipeRefreshLayout categoryFragmentSwipeRefreshLayout;
     private ProgressDialog pd;
     private String fileID;
@@ -102,6 +104,10 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
     //    prevent reload the data
     private boolean load = false;
     CustomSqliteHelper customSqliteHelper;
+    //all file or category purpose
+    private boolean readAllFile = false;
+    //prevent double click
+    private boolean click = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,12 +119,12 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
 
     private void objectInitialize() {
         actionBarTitle = (TextView) findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout) findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout) findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout) findViewById(R.id.actionBar_back_button);
+        actionBarSearch =  findViewById(R.id.actionBar_search);
+        actionbarSetting =  findViewById(R.id.actionBar_setting);
+        actionbarBackButton =  findViewById(R.id.actionBar_back_button);
+        actionBarCancel = findViewById(R.id.actionBar_cancel);
         actionBarSearchLayout = (LinearLayout) findViewById(R.id.actionBar_search_layout);
         actionBarDefaultLayout = (LinearLayout) findViewById(R.id.actionBar_icon_layout);
-        actionBarCancel = (SquareHeightLinearLayout) findViewById(R.id.actionBar_cancel);
         actionBarSearchField = (EditText) findViewById(R.id.action_bar_search_field);
         actionBarLayout = findViewById(R.id.activity_main_layout_action_bar);
 
@@ -126,6 +132,8 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
         categoryFragmentFloatingButton = (ImageView) findViewById(R.id.fragment_category_floating_button);
         categoryFragmentResultNotFound = (LinearLayout) findViewById(R.id.not_found);
         categoryFragmentSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_layout);
+        categoryActivityAllFileLayout = findViewById(R.id.activity_category_all_file_layout);
+        categoryActivityAllFileQuantity = findViewById(R.id.activity_category_all_file_quantity);
 
         categoryFragmentListViewObjectArrayList = new ArrayList<>();
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -136,7 +144,6 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
         pd = new ProgressDialog(this);
 
         customSqliteHelper = new CustomSqliteHelper(this);
-
     }
 
     private void objectSetting() {
@@ -144,6 +151,7 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
         actionbarSetting.setOnClickListener(this);
         actionbarBackButton.setOnClickListener(this);
         actionBarCancel.setOnClickListener(this);
+        categoryActivityAllFileLayout.setOnClickListener(this);
         categoryFragmentSwipeRefreshLayout.setOnRefreshListener(this);
 
         categoryFragmentListView.setOnScrollListener(this);
@@ -178,7 +186,6 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
             case R.id.actionBar_search:
 //                showSearchView(true);
                 openSearchDialog();
-
                 break;
             case R.id.actionBar_setting:
                 openSetting();
@@ -192,6 +199,9 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
             case R.id.fragment_category_floating_button:
                 openInsertDialog();
                 break;
+            case R.id.activity_category_all_file_layout:
+                clickEffect(view);
+                openAllFile();
         }
     }
 
@@ -492,7 +502,6 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
             public void run() {
                 try {
                     //        initialize and assign data into array list
-                    isLoading = false;
                     JSONArray jsonArray = customSqliteHelper.fetchAllCategory(fileID, page).getJSONArray("category");
                     if(jsonArray.length() > 0){
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -505,11 +514,29 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
                     }
                     else finishLoadAll = true;
                     setListViewVisibility();
+                    isLoading = false;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    public void countAllFileQuantity(){
+        final int[] count = {0};
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                count[0] = customSqliteHelper.countAllFileQuantity(fileID);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        categoryActivityAllFileQuantity.setText(String.valueOf(count[0]) + " Items");
+                    }
+                });
+            }
+        }).start();
+
     }
 
     public void setUpListView() {
@@ -524,11 +551,15 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
                 if (categoryFragmentListViewObjectArrayList.size() > 0) {
 //            if data found
                     categoryFragmentListView.setVisibility(View.VISIBLE);
+                    categoryActivityAllFileLayout.setVisibility(View.VISIBLE);
                     categoryFragmentResultNotFound.setVisibility(View.GONE);
+                    countAllFileQuantity();
                 } else {
 //            if not found
                     categoryFragmentListView.setVisibility(View.INVISIBLE);
+                    categoryActivityAllFileLayout.setVisibility(View.GONE);
                     categoryFragmentResultNotFound.setVisibility(View.VISIBLE);
+
                 }
                 categoryFragmentListViewAdapter.notifyDataSetChanged();
                 pd.dismiss();
@@ -540,23 +571,47 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         switch (adapterView.getId()) {
             case R.id.fragment_category_list_view:
-                clickEffect(view);
-                selectedCategoryID = categoryFragmentListViewObjectArrayList.get(i).getId();
-                selectedCategoryName = categoryFragmentListViewObjectArrayList.get(i).getCategory();
-                selectedPosition = i;
-                final Bundle bundle = new Bundle();
+                if(click){
+                    click = false;
+                    clickEffect(view);
+                    selectedCategoryID = categoryFragmentListViewObjectArrayList.get(i).getId();
+                    selectedCategoryName = categoryFragmentListViewObjectArrayList.get(i).getCategory();
+                    selectedPosition = i;
+                    readAllFile = false;
 
-                bundle.putString("category_id", selectedCategoryID);
-                bundle.putString("category_name", selectedCategoryName);
-                bundle.putString("file_id", fileID);
-                bundle.putString("fromListView", "categoryLV");
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivityForResult(new Intent(ExportCategoryActivity.this, SubCategoryActivity.class).putExtras(bundle), 2);
-                    }
-                }, 50);
+                    bundle = new Bundle();
+                    bundle.putString("category_id", selectedCategoryID);
+                    bundle.putString("category_name", selectedCategoryName);
+                    bundle.putString("file_id", fileID);
+                    bundle.putString("fromListView", "categoryLV");
+                    bundle.putBoolean("readAllFile", readAllFile);
+                    openSubCategory();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            click = true;
+                        }
+                    },300);
+                }
         }
+    }
+
+    private void openAllFile(){
+        readAllFile = true;
+
+        bundle = new Bundle();
+        bundle.putBoolean("readAllFile", readAllFile);
+        bundle.putString("file_id", fileID);
+        openSubCategory();
+    }
+
+    private void openSubCategory(){
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startActivityForResult(new Intent(ExportCategoryActivity.this, SubCategoryActivity.class).putExtras(bundle), 2);
+            }
+        }, 50);
     }
 
     /*----------------------------------------------------search purpose---------------------------------------------------------------------------------*/
@@ -623,6 +678,7 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
                 @Override
                 public void run() {
                     new AnimationUtility().slideOut(getApplicationContext(), categoryFragmentFloatingButton);
+                    actionBarLayout.setVisibility(View.GONE);
                 }
             }, 100);
         }
@@ -635,6 +691,7 @@ public class ExportCategoryActivity extends AppCompatActivity implements View.On
                 @Override
                 public void run() {
                     categoryFragmentFloatingButton.setVisibility(View.VISIBLE);
+                    new AnimationUtility().fadeInVisible(getApplicationContext(), actionBarLayout);
                 }
             }, 100);
         }

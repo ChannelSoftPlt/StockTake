@@ -10,7 +10,7 @@ public class TakeActionObject {
     private String date;
     private String time;
 
-   public TakeActionObject(String id, String barcode, String quantity, String date, String time, String categoryName, String categoryID) {
+   public TakeActionObject(String id, String barcode, String quantity, String date, String time, String categoryID, String categoryName) {
         this.id = id;
         this.barcode = barcode;
         this.quantity = quantity;

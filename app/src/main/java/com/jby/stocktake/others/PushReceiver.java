@@ -1,18 +1,9 @@
 package com.jby.stocktake.others;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.content.Context;
-import android.media.RingtoneManager;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
-import android.support.v4.app.NotificationCompat;
 
-import com.jby.stocktake.R;
-import com.jby.stocktake.home.HomeActivity;
-import com.jby.stocktake.setting.UserAccountActivity;
 import com.jby.stocktake.shareObject.NotificationSetUp;
 
 public class PushReceiver extends BroadcastReceiver {

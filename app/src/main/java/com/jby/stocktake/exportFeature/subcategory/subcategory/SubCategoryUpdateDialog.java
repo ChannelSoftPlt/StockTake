@@ -1,4 +1,5 @@
 package com.jby.stocktake.exportFeature.subcategory.subcategory;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -32,16 +33,18 @@ import org.json.JSONObject;
 
 import static com.jby.stocktake.database.CustomSqliteHelper.TB_SUB_CATEGORY;
 
-public class SubCategoryUpdateDialog extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener, ResultCallBack {
+public class SubCategoryUpdateDialog extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
     View rootView;
-    private Button categoryUpdateDialogButtonCancel, categoryUpdateDialogButtonUpdate ;
+    private Button categoryUpdateDialogButtonCancel, categoryUpdateDialogButtonUpdate;
     private EditText subCategoryUpdateDialogEditTextQuantity;
-    private TextView subCategoryUpdateDialogTextViewDate , subCategoryUpdateDialogTextViewSystemQuantity;
+    private TextView subCategoryUpdateDialogTextViewDate, subCategoryUpdateDialogTextViewSystemQuantity;
     private TextView subCategoryUpdateDialogTextViewSellingPrice, subCategoryUpdateDialogTextViewCostPrice, subCategoryUpdateDialogTextViewDescription;
     private TextView SubCategoryUpdateDialogTextViewDescriptionContent, subCategoryUpdateDialogEditTextBarcode;
-    private FrameworkClass tbSubCategory;
+    private TextView subCategoryUpdateDialogTextViewItemCode, subCategoryUpdateDialogTextViewCategory;
+    private CustomSqliteHelper customSqliteHelper;
     SubCategoryUpdateDialogCallBack subCategoryUpdateDialogCallBack;
     String currentQuantity, id;
+    private SubCategoryObject object;
 
     public SubCategoryUpdateDialog() {
     }
@@ -83,19 +86,20 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
         subCategoryUpdateDialogTextViewSellingPrice = (TextView) rootView.findViewById(R.id.fragment_sub_category_update_dialog_selling_price);
         subCategoryUpdateDialogTextViewCostPrice = (TextView) rootView.findViewById(R.id.fragment_sub_category_update_dialog_cost_price);
         SubCategoryUpdateDialogTextViewDescriptionContent = (TextView) rootView.findViewById(R.id.fragment_sub_category_update_dialog_description_content);
-        tbSubCategory = new FrameworkClass(getActivity(), this,  new CustomSqliteHelper(getActivity()), TB_SUB_CATEGORY);
+        subCategoryUpdateDialogTextViewCategory = rootView.findViewById(R.id.fragment_sub_category_update_dialog_category);
+        subCategoryUpdateDialogTextViewItemCode = rootView.findViewById(R.id.fragment_sub_category_update_dialog_item_code);
         subCategoryUpdateDialogCallBack = (SubCategoryUpdateDialogCallBack) getActivity();
-
+        customSqliteHelper = new CustomSqliteHelper(getActivity());
     }
 
-    public void objectSetting(){
+    public void objectSetting() {
         Bundle mArgs = getArguments();
         if (mArgs != null) {
             id = mArgs.getString("id");
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    tbSubCategory.new Read("*").where("id = " + id).perform();
+                    setUpValue(id);
                 }
             }).start();
         }
@@ -109,24 +113,24 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
                 showKeyBoard();
                 subCategoryUpdateDialogEditTextQuantity.selectAll();
             }
-        },200);
+        }, 200);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.fragment_category_update_dialog_button_cancel:
                 closeKeyBoard();
                 dismiss();
                 break;
 
             case R.id.fragment_category_update_dialog_button_update:
-                    updateBarcodeNQuantity();
+                updateBarcodeNQuantity();
                 break;
         }
     }
-    
-    public void alertMessage(){
+
+    public void alertMessage() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Bad Request");
         builder.setMessage("Every Field is required");
@@ -143,73 +147,73 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
         alert.show();
     }
 
-    public void closeKeyBoard(){
+    public void closeKeyBoard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(imm != null)
+        if (imm != null)
             imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
     }
+
     @Override
-    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        switch(textView.getId()){
+    public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+        switch (textView.getId()) {
             case R.id.fragment_sub_category_update_dialog_quantity:
-                if(i == EditorInfo.IME_ACTION_DONE) updateBarcodeNQuantity();
+                if (actionId == EditorInfo.IME_NULL && keyEvent.getAction() == KeyEvent.ACTION_DOWN) updateBarcodeNQuantity();
                 break;
         }
         return false;
     }
 
-    public void updateBarcodeNQuantity(){
-        try{
+    public void updateBarcodeNQuantity() {
+        try {
             Double quantity = Double.valueOf(subCategoryUpdateDialogEditTextQuantity.getText().toString());
-            if(quantity > 0){
-                if(!String.valueOf(quantity).equals(currentQuantity)){
+            if (quantity > 0) {
+                if (!String.valueOf(quantity).equals(currentQuantity)) {
                     subCategoryUpdateDialogCallBack.updateSubCategoryItem(String.valueOf(quantity), id);
                 }
                 closeKeyBoard();
                 dismiss();
-            }
-            else
+            } else
                 alertMessage();
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             Toast.makeText(getActivity(), "Invalid Quantity!", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void setUpValue(String result) {
-        try {
-            JSONArray jsonArray = new JSONObject(result).getJSONArray("result");
-            currentQuantity = jsonArray.getJSONObject(0).getString("check_quantity");
+        object = customSqliteHelper.getItemDetail(id);
+        subCategoryUpdateDialogEditTextBarcode.setText(object.getBarcode());
+        subCategoryUpdateDialogEditTextQuantity.setText(object.getCheckQuantity());
+        subCategoryUpdateDialogTextViewDate.setText(object.getDate() + " " + object.getTime());
 
-            subCategoryUpdateDialogEditTextBarcode.setText(jsonArray.getJSONObject(0).getString("barcode"));
+        if (object.getSystemQuantity().equals("0"))
+            subCategoryUpdateDialogTextViewSystemQuantity.setText("-");
+        else
+            subCategoryUpdateDialogTextViewSystemQuantity.setText(object.getSystemQuantity());
 
-            subCategoryUpdateDialogEditTextQuantity.setText(jsonArray.getJSONObject(0).getString("check_quantity"));
+        if (object.getDescription().equals("0"))
+            SubCategoryUpdateDialogTextViewDescriptionContent.setText("-");
+        else
+            SubCategoryUpdateDialogTextViewDescriptionContent.setText(object.getDescription());
 
-            subCategoryUpdateDialogTextViewDate.setText(jsonArray.getJSONObject(0).getString("date_create") + " " + jsonArray.getJSONObject(0).getString("time_create"));
+        if (object.getSellingPrice().equals("0")) {
+            subCategoryUpdateDialogTextViewSellingPrice.setText("-");
+        } else
+            subCategoryUpdateDialogTextViewSellingPrice.setText(object.getSellingPrice());
 
-            if(jsonArray.getJSONObject(0).getString("system_quantity").equals("0"))
-                subCategoryUpdateDialogTextViewSystemQuantity.setText("-");
-            else
-                subCategoryUpdateDialogTextViewSystemQuantity.setText(jsonArray.getJSONObject(0).getString("system_quantity"));
+        if (object.getCostPrice().equals("0")) {
+            subCategoryUpdateDialogTextViewCostPrice.setText("-");
+        } else
+            subCategoryUpdateDialogTextViewCostPrice.setText(object.getCostPrice());
 
-            if(jsonArray.getJSONObject(0).getString("description").equals("0"))
-                SubCategoryUpdateDialogTextViewDescriptionContent.setText("-");
-            else
-                SubCategoryUpdateDialogTextViewDescriptionContent.setText(jsonArray.getJSONObject(0).getString("description"));
+        if (object.getItemCode().equals("0") && object.getItemCode().equals("")) {
+            subCategoryUpdateDialogTextViewItemCode.setText("-");
+        } else
+            subCategoryUpdateDialogTextViewItemCode.setText(object.getItemCode());
 
-            if(jsonArray.getJSONObject(0).getString("selling_price").equals("0")){
-                subCategoryUpdateDialogTextViewSellingPrice.setText("-");
-            }
-            else
-                subCategoryUpdateDialogTextViewSellingPrice.setText(jsonArray.getJSONObject(0).getString("selling_price"));
-
-            if(jsonArray.getJSONObject(0).getString("cost_price").equals("0")){
-                subCategoryUpdateDialogTextViewCostPrice.setText("-");
-            }
-            else
-                subCategoryUpdateDialogTextViewCostPrice.setText(jsonArray.getJSONObject(0).getString("cost_price"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        if (object.getCategoryName().equals("")) {
+            subCategoryUpdateDialogTextViewCategory.setText("-");
+        } else
+            subCategoryUpdateDialogTextViewCategory.setText(object.getCategoryName());
     }
 
     public void showKeyBoard() {
@@ -222,31 +226,6 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
     }
 
     @Override
-    public void createResult(String status) {
-        
-    }
-
-    @Override
-    public void readResult(final String result) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setUpValue(result);
-            }
-        });
-    }
-
-    @Override
-    public void updateResult(String status) {
-
-    }
-
-    @Override
-    public void deleteResult(String status) {
-
-    }
-
-    @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         subCategoryUpdateDialogCallBack.requestFocus(true);
@@ -254,6 +233,7 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
 
     public interface SubCategoryUpdateDialogCallBack {
         void updateSubCategoryItem(String quantity, String selected_Id);
+
         void requestFocus(boolean focus);
     }
 }

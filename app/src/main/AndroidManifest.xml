@@ -32,10 +32,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".exportFeature.subcategory.SubCategoryActivity" android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".exportFeature.subcategory.SubCategoryActivity" android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity android:name=".exportFeature.subcategory.subcategory.takeAction.TakeActionActivity" />
         <activity android:name=".setting.SettingActivity" />
-        <activity android:name=".home.HomeActivity" />
         <activity android:name=".exportFeature.file.ExportFileActivity"/>
         <activity android:name=".exportFeature.category.ExportCategoryActivity" />
         <activity android:name=".setting.UserAccountActivity" />
@@ -74,6 +73,16 @@
         <service android:name="me.pushy.sdk.services.PushySocketService"/>
 
         <!-- End Pushy Declarations -->
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="@string/file_provider_authority"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_path" />
+        </provider>
 
     </application>
 </manifest>

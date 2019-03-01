@@ -23,6 +23,8 @@ public class SharedPreferenceManager {
     private static String DeviceToken = "deviceToken";
     private static String DeviceName = "deviceName";
     private static String UserPackage = "userPackage";
+    private static String ExportTime = "exportTime";
+    private static String ExportDate = "exportDate";
 
     private static SharedPreferences getSharedPreferences(Context context) {
         String SharedPreferenceFileName = "MJTaiwanUserLoginSessionDetail";
@@ -144,6 +146,22 @@ public class SharedPreferenceManager {
 
     public static void setUserPackage(Context context, int userPackage) {
         getSharedPreferences(context).edit().putInt(UserPackage, userPackage).apply();
+    }
+
+    public static String getExportDate(Context context) {
+        return getSharedPreferences(context).getString(ExportDate, "0");
+    }
+
+    public static void setExportDate(Context context, String exportDate) {
+        getSharedPreferences(context).edit().putString(ExportDate, exportDate).apply();
+    }
+
+    public static String getExportTime(Context context) {
+        return getSharedPreferences(context).getString(ExportTime, "0");
+    }
+
+    public static void setExportTime(Context context, String exportTime) {
+        getSharedPreferences(context).edit().putString(ExportTime, exportTime).apply();
     }
 
 }

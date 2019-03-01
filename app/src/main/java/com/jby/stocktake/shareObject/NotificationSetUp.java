@@ -11,7 +11,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
 import com.jby.stocktake.R;
-import com.jby.stocktake.home.HomeActivity;
+import com.jby.stocktake.exportFeature.file.ExportFileActivity;
 import com.jby.stocktake.setting.UserAccountActivity;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
@@ -104,7 +104,7 @@ public class NotificationSetUp {
                 .setLights(Color.RED, 1000, 1000)
                 .setVibrate(new long[]{0, 400, 250, 400})
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, HomeActivity.class), PendingIntent.FLAG_UPDATE_CURRENT));
+                .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, ExportFileActivity.class), PendingIntent.FLAG_UPDATE_CURRENT));
 
         // Get an instance of the NotificationManager service
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);

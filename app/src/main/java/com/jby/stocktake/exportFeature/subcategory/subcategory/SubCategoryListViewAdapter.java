@@ -2,11 +2,15 @@ package com.jby.stocktake.exportFeature.subcategory.subcategory;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,14 +27,18 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
     public SparseBooleanArray deleteItem, moveItem;
     private CustomSqliteHelper customSqliteHelper;
     private SubCategoryListViewAdapterCallBack subCategoryListViewAdapterCallBack;
-    private String categoryID;
+    private String categoryID, fileID;
     private boolean move = false;
+    private boolean readAllFile;
 
-    public SubCategoryListViewAdapter(Context context, ArrayList<SubCategoryObject> subCategoryObjectArrayList, String categoryID, SubCategoryListViewAdapterCallBack subCategoryListViewAdapterCallBack) {
+    public SubCategoryListViewAdapter(Context context, ArrayList<SubCategoryObject> subCategoryObjectArrayList, String categoryID, boolean readAllFile, String fileID
+                                      ,SubCategoryListViewAdapterCallBack subCategoryListViewAdapterCallBack) {
         this.context = context;
         this.subCategoryObjectArrayList = subCategoryObjectArrayList;
         customSqliteHelper = new CustomSqliteHelper(context);
         this.categoryID = categoryID;
+        this.fileID = fileID;
+        this.readAllFile = readAllFile;
         this.subCategoryListViewAdapterCallBack = subCategoryListViewAdapterCallBack;
 
         deleteItem = new SparseBooleanArray();
@@ -63,7 +71,7 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
         SubCategoryObject object = getItem(i);
-        int totalRow = customSqliteHelper.countSubCategoryRow(getCategoryID());
+        int totalRow = customSqliteHelper.countSubCategoryRow(readAllFile, getCategoryID(), fileID);
         totalRow = totalRow - i;
 
         viewHolder.number.setText(String.valueOf(totalRow));
@@ -72,9 +80,8 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
         viewHolder.checkQuantity.setText(object.getCheckQuantity());
         viewHolder.date.setText(object.getDate());
         viewHolder.time.setText(object.getTime());
-        viewHolder.status.setText(getStatus(Double.valueOf(object.getCheckQuantity()), Double.valueOf(object.getSystemQuantity())));
+        viewHolder.status.setText(getStatus(object.getCheckQuantity(), object.getSystemQuantity()));
         ;
-
         if (deleteItem.size() > 0) {
             if (deleteItem.get(i)) {
                 viewHolder.subCategoryInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.list_view_background));
@@ -166,6 +173,10 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public SparseBooleanArray getMoveItem() {
+        return moveItem;
+    }
+
     private void hide(ViewHolder viewHolder, boolean showCheckBox) {
         viewHolder.checkBox.setVisibility(showCheckBox ? View.VISIBLE : View.GONE);
     }
@@ -174,6 +185,7 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
         viewHolder.subCategoryInnerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                clickEffect(view);
                 toggleMoveSelection(position);
                 subCategoryListViewAdapterCallBack.selectMoveItem();
             }
@@ -182,14 +194,26 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
         viewHolder.checkBox.setChecked(moveItem.get(position));
     }
 
+    public void clickEffect(View view) {
+        Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
+        animation1.setDuration(500);
+        view.startAnimation(animation1);
+    }
+
     /*-----------------------------------------------------------check quantity status-----------------------------------------------------------------------*/
-    private String getStatus(double checkQuantity, double systemQuantity) {
-        if (checkQuantity > systemQuantity)
-            return context.getResources().getString(R.string.activity_import_sub_category_status_more);
-        else if (checkQuantity < systemQuantity)
-            return context.getResources().getString(R.string.activity_import_sub_category_status_less);
-        else
-            return context.getResources().getString(R.string.activity_import_sub_category_status_balance);
+    private String getStatus(String checkQuantity, String systemQuantity) {
+        try{
+            double cq = Double.valueOf(checkQuantity);
+            double sq = Double.valueOf(systemQuantity);
+            if (cq > sq)
+                return context.getResources().getString(R.string.activity_import_sub_category_status_more);
+            else if (cq < sq)
+                return context.getResources().getString(R.string.activity_import_sub_category_status_less);
+            else
+                return context.getResources().getString(R.string.activity_import_sub_category_status_balance);
+        }catch (NumberFormatException e){
+            return "-";
+        }
     }
 
     public interface SubCategoryListViewAdapterCallBack {

@@ -156,4 +156,14 @@
     <string name="activity_sub_category_label_selected">0 Selected</string>
     <string name="activity_sub_category_move_button">Move</string>
     <string name="sub_category_move_item_dialog_label_move">Please select one category:</string>
+    <string name="activity_category_label_all">All</string>
+    <string name="activity_category_label_category">All category</string>
+    <!--file provider must be unique-->
+    <string name="file_provider_authority" translatable="false">com.jby.stocktake</string>
+    <string name="file_max">You have reached the <b>maximum number</b> of file.\nPlease clear it order to upload new file.</string>
+    <string name="activity_sub_category_select_all_button">Select All</string>
+    <string name="activity_setting_label_export_setting">Export settings</string>
+    <string name="fragment_setting_label_export_date">Date</string>
+    <string name="fragment_setting_label_export_time">Time</string>
+    <string name="fragment_sub_category_update_dialog_label_category">Category:</string>
 </resources>

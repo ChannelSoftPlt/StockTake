@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.jby.stocktake.exportFeature.category.ExportCategoryListViewObject;
 import com.jby.stocktake.exportFeature.category.searchFeature.ExportCategorySearchCategoryObject;
@@ -15,17 +14,16 @@ import com.jby.stocktake.exportFeature.category.searchFeature.ExportCategorySear
 import com.jby.stocktake.exportFeature.file.ExportFileListViewObject;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryObject;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.takeAction.TakeActionObject;
+import com.jby.stocktake.others.CSVWriter;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-/**
- * Created by user on 3/11/2018.
- */
 
 public class CustomSqliteHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Database";
@@ -49,11 +47,13 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_SUB_CATEGORY = "CREATE TABLE " + TB_SUB_CATEGORY +
             "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "barcode Text, " +
+            "item_code Text default 0," +
             "description Text default 0, " +
             "check_quantity Text default 0, " +
             "system_quantity Text default 0, " +
             "selling_price Text default 0, " +
             "cost_price Text default 0," +
+            "file_id Text, " +
             "category_id Text, " +
             "priority Text, " +
             "date_create Text, " +
@@ -87,7 +87,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<ExportFileListViewObject> results = new ArrayList<>();
 
-        String sql = "SELECT tb_file.id, tb_file.file_name, COUNT(tb_category.id) FROM " + TB_FILE +
+        String sql = "SELECT tb_file.id, tb_file.file_name, COUNT(tb_category.id), tb_file.created_at FROM " + TB_FILE +
                 " LEFT JOIN " + TB_CATEGORY +
                 " ON tb_file.id = tb_category.file_id" +
                 " GROUP BY tb_file.file_name" +
@@ -97,7 +97,8 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         while (crs.moveToNext()) {
             results.add(new ExportFileListViewObject(crs.getString(crs.getColumnIndex("id")),
                     crs.getString(crs.getColumnIndex("file_name")),
-                    String.valueOf(crs.getInt(2))));
+                    String.valueOf(crs.getInt(2)),
+                    crs.getString(crs.getColumnIndex("created_at"))));
         }
         db.close();
         crs.close();
@@ -105,28 +106,25 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
     }
 
 
-    private boolean deleteAllCategoryRelatedToFile(String fileID) {
+    public boolean deleteFileItem(String fileID) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<String> list = new ArrayList<String>();
-        String sql = "SELECT category_id FROM " + TB_CATEGORY + " WHERE file_id IN (" + fileID + ")";
+        String sql = "SELECT id FROM " + TB_CATEGORY + " WHERE file_id IN (" + fileID + ")";
         boolean result = false;
 
         Cursor cursor = db.rawQuery(sql, null);
         while (cursor.moveToNext()) {
-            list.add(cursor.getString(cursor.getColumnIndex("category_id")));
+            list.add(cursor.getString(cursor.getColumnIndex("id")));
         }
         boolean deleteCategory = deleteCategory(list);
-        if (deleteCategory) {
-            boolean deleteSubCategory = deleteSubCategoryRelatedToCategory(list);
-            if (deleteSubCategory)
-                result = true;
-        }
+        if (deleteCategory) result = true;
+
         db.close();
         cursor.close();
         return result;
     }
 
-    /**************************************************************************** category purpose*******************************************************************/
+    //---------------------------------------------------------------------------- category purpose-------------------------------------------------------------------/
 
     public JSONObject fetchAllCategory(String fileID, int page) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -157,7 +155,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
 
 
             while (crs.moveToNext()) {
-              ExportCategoryListViewObject object = new ExportCategoryListViewObject(crs.getString(crs.getColumnIndex("id")),
+                ExportCategoryListViewObject object = new ExportCategoryListViewObject(crs.getString(crs.getColumnIndex("id")),
                         crs.getString(crs.getColumnIndex("category_name")),
                         String.valueOf(crs.getInt(2)));
 
@@ -240,7 +238,6 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
     }
 
     public boolean deleteCategory(List ids) {
-        Log.d("haha", "haha: delete" + ids);
         SQLiteDatabase db = this.getWritableDatabase();
         long result;
         boolean status = false;
@@ -253,7 +250,6 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
                 status = true;
         }
         return status;
-
     }
 
     private boolean deleteSubCategoryRelatedToCategory(List ids) {
@@ -329,13 +325,13 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
     }
 
 
-    /**************************************************************************** subcategory purpose*******************************************************************/
+    //---------------------------------------------------------------------------- subcategory purpose-------------------------------------------------------------------/
 
-    public JSONObject fetchAllSubCategory(String category_id, int page) {
+    public JSONObject fetchAllSubCategory(boolean readAllFile, String category_id, String filter, String file_id, int page) {
         SQLiteDatabase db = this.getReadableDatabase();
-        double start;
+        double start = 0;
         double limit = 20.0;
-        int totalSubCategoryRow = countSubCategoryRow(category_id);
+        int totalSubCategoryRow = countSubCategoryRow(readAllFile, category_id, file_id);
         int page_limit = (int) Math.ceil(totalSubCategoryRow / limit);
 
         //for return json purpose
@@ -347,12 +343,12 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         if (page <= page_limit) {
             start = (page - 1) * limit;
 
-            String sql = "SELECT * FROM " + TB_SUB_CATEGORY + " WHERE category_id=" + category_id +
-                    " ORDER BY priority DESC" +
-                    " LIMIT " + start + " , " + limit;
+            String sql = "SELECT * FROM " + TB_SUB_CATEGORY;
+            if (!readAllFile) sql = sql + " WHERE category_id=" + category_id;
+            else sql = sql + " WHERE file_id =" + file_id;
 
+            sql = filter(filter, sql) + " ORDER BY priority DESC" + " LIMIT " + start + " , " + limit;
             Cursor crs = db.rawQuery(sql, null);
-
             while (crs.moveToNext()) {
                 SubCategoryObject object = new SubCategoryObject(
                         crs.getString(crs.getColumnIndex("id")),
@@ -377,27 +373,40 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("haha", "haha: data " + jsonObject);
         return jsonObject;
     }
 
-    public int countSubCategoryRow(String categoryID) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    private String filter(String filter, String sql) {
+        switch (filter) {
+            case "balance":
+                return sql + " AND check_quantity = CAST(system_quantity AS UNSIGNED INTEGER)";
+            case "more":
+                return sql + " AND check_quantity > CAST(system_quantity AS UNSIGNED INTEGER)";
+            case "less":
+                return sql + " AND check_quantity < CAST(system_quantity AS UNSIGNED INTEGER)";
+            default:
+                return sql;
+        }
+    }
 
-        String sql = "SELECT category_id FROM " + TB_SUB_CATEGORY + " WHERE category_id=" + categoryID;
+    public int countSubCategoryRow(boolean readAllFile, String categoryID, String file_id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String sql = "SELECT category_id FROM " + TB_SUB_CATEGORY;
+        if (!readAllFile) sql = sql + " WHERE category_id=" + categoryID;
+        else sql = sql + " WHERE file_id =" + file_id;
         Cursor cursor = db.rawQuery(sql, null);
         int cursorCount = cursor.getCount();
         cursor.close();
         return cursorCount;
     }
 
-    /**************************************************************************** subcategory save purpose*******************************************************************/
+    //---------------------------------------------------------------------------- subcategory save purpose-------------------------------------------------------------------/
 
-    public int saveSubCategory(String file_id, int count, String categoryID, String barcode, double quantity) {
+    public long saveSubCategory(boolean readAllFile, String file_id, int count, String categoryID, String barcode, double quantity) {
         String reminder = SharedPreferenceManager.getReminder(context);
         int status = 0;
         boolean reminderStatus = false;
-        if (reminder.equals("1") && count == 0) {
+        if (reminder.equals("1") && count == 0 && !readAllFile) {
 //            check this record existed or not
             int checkRecordAvailabilityInOthers = checkSubCategoryExistedInOther(categoryID, barcode, file_id);
 //            if exist
@@ -409,11 +418,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         }
         if (!reminderStatus) {
 //            if reminder = off or record is not exist in other category then proceed to here
-            boolean checkRecordAvailability = checkSubCategoryExisted(barcode, categoryID, quantity);
-            if (checkRecordAvailability)
-                status = 1;
-            else
-                status = 2;
+            return checkSubCategoryExisted(barcode, categoryID, file_id, quantity);
         }
         return status;
     }
@@ -434,28 +439,40 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         return cursorCount;
     }
 
-    private boolean checkSubCategoryExisted(String barcode, String categoryID, double quantity) {
+    private long checkSubCategoryExisted(String barcode, String categoryID, String file_id, double quantity) {
         SQLiteDatabase db = this.getReadableDatabase();
-        boolean status = false;
+        Cursor cursor;
+        long status;
 
-        String sql = "SELECT check_quantity, id FROM " + TB_SUB_CATEGORY +
-                " WHERE barcode=? AND category_id=?";
-
-        Cursor cursor = db.rawQuery(sql, new String[]{barcode, categoryID});
-
-
+        String sql = "SELECT check_quantity, id FROM " + TB_SUB_CATEGORY;
+        //check by category
+        if (categoryID != null) {
+            sql = sql + " WHERE barcode = ? AND category_id = ? ";
+            cursor = db.rawQuery(sql, new String[]{barcode, categoryID});
+            //check by all file
+        } else {
+            sql = sql + " WHERE barcode= ? ORDER BY id DESC";
+            cursor = db.rawQuery(sql, new String[]{barcode});
+        }
+        //update existed record
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
             double newQuantity = cursor.getInt(cursor.getColumnIndex("check_quantity")) + quantity;
             String subCategoryID = cursor.getString(cursor.getColumnIndex("id"));
 
             boolean updateExistedRecord = updateExistedSubCategory(subCategoryID, newQuantity);
-            if (updateExistedRecord)
-                status = true;
-        } else {
-            boolean saveNewRecord = saveNewSubCategory(categoryID, quantity, barcode);
-            if (saveNewRecord)
-                status = true;
+            if (updateExistedRecord) status = 1;
+            else status = 4;
+        }
+        //create new record
+        else {
+            long saveNewRecord;
+            //if check by file and a new record is found then return the id
+            saveNewRecord = saveNewSubCategory(categoryID, quantity, barcode, file_id);
+            if (saveNewRecord == -1) status = 4;
+            else if (categoryID != null) status = 1;
+                //return id
+            else return saveNewRecord;
         }
         cursor.close();
         return status;
@@ -481,32 +498,50 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         return status;
     }
 
-    private boolean saveNewSubCategory(String categoryID, double quantity, String barcode) {
+    private long saveNewSubCategory(String categoryID, double quantity, String barcode, String fileID) {
         String dateCreate = String.valueOf(android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date()));
         String timeCreate = String.valueOf(android.text.format.DateFormat.format("HH:mm:ss", new java.util.Date()));
         String priority = String.valueOf(android.text.format.DateFormat.format("yyyyMMddHHmmss", new java.util.Date()));
         SQLiteDatabase db = this.getWritableDatabase();
-        long result;
-        boolean status = false;
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put("category_id", categoryID);
+        if (categoryID != null) contentValues.put("category_id", categoryID);
+        else contentValues.put("file_id", fileID);
         contentValues.put("check_quantity", quantity);
         contentValues.put("barcode", barcode);
         contentValues.put("date_create", dateCreate);
         contentValues.put("time_create", timeCreate);
         contentValues.put("priority", priority);
-
-        result = db.insert(TB_SUB_CATEGORY, null, contentValues);
-
-        if (result != -1)
-            status = true;
-
-        return status;
-
+        return db.insert(TB_SUB_CATEGORY, null, contentValues);
     }
 
-    /**************************************************************************** subcategory update purpose*******************************************************************/
+    public SubCategoryObject getItemDetail(String itemID) {
+        SubCategoryObject object = null;
+        String sql = "SELECT tb_category.category_name, tb_sub_category.barcode, tb_sub_category.item_code, tb_sub_category.check_quantity, tb_sub_category.system_quantity, tb_sub_category.cost_price, tb_sub_category.selling_price, tb_sub_category.date_create, tb_sub_category.time_create, tb_sub_category.description" +
+                " FROM " + TB_SUB_CATEGORY +
+                " INNER JOIN TB_CATEGORY ON tb_category.id = tb_sub_category.category_id" +
+                " WHERE tb_sub_category.id = " + itemID;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor crs = db.rawQuery(sql, null);
+        while (crs.moveToNext()) {
+            object = new SubCategoryObject(
+                    crs.getString(crs.getColumnIndex("barcode")),
+                    crs.getString(crs.getColumnIndex("item_code")),
+                    crs.getString(crs.getColumnIndex("description")),
+                    crs.getString(crs.getColumnIndex("check_quantity")),
+                    crs.getString(crs.getColumnIndex("system_quantity")),
+                    crs.getString(crs.getColumnIndex("date_create")),
+                    crs.getString(crs.getColumnIndex("time_create")),
+                    crs.getString(crs.getColumnIndex("category_name")),
+                    crs.getString(crs.getColumnIndex("selling_price")),
+                    crs.getString(crs.getColumnIndex("cost_price")));
+        }
+        crs.close();
+        return object;
+    }
+
+    //---------------------------------------------------------------------------- subcategory update purpose-------------------------------------------------------------------/
 
     public int updateSubCategory(double quantity, String subCategoryID) {
         int status = 0;
@@ -550,7 +585,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
 
     }
 
-    /**************************************************************************** subcategory move existed record to other category purpose*******************************************************************/
+    //---------------------------------------------------------------------------- subcategory move existed record to other category purpose-------------------------------------------------------------------/
     public ArrayList<TakeActionObject> fetchAllExistedRecordFromOther(String categoryID, String barcode, String fileID, ArrayList<TakeActionObject> arrayList) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -581,8 +616,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
 
     }
 
-
-    public boolean getMoveItemQuantity(String subCategoryID, int quantity) {
+    public boolean getMoveItemQuantity(String subCategoryID, double quantity) {
         SQLiteDatabase db = this.getWritableDatabase();
         boolean status = false;
         String sql = "SELECT check_quantity FROM " + TB_SUB_CATEGORY +
@@ -591,7 +625,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sql, new String[]{subCategoryID});
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
-            int newQuantity = cursor.getInt(cursor.getColumnIndex("check_quantity")) + quantity;
+            double newQuantity = cursor.getInt(cursor.getColumnIndex("check_quantity")) + quantity;
             boolean moveQuantity = updateMoveItemQuantity(subCategoryID, newQuantity);
 
             if (moveQuantity)
@@ -602,7 +636,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         return status;
     }
 
-    private boolean updateMoveItemQuantity(String subCategoryID, int quantity) {
+    private boolean updateMoveItemQuantity(String subCategoryID, double quantity) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         String priority = String.valueOf(android.text.format.DateFormat.format("yyyyMMddHHmmss", new java.util.Date()));
@@ -617,23 +651,23 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         return status;
     }
 
-    /**************************************************************************** subcategory search purpose*******************************************************************/
-    public ArrayList<SubCategoryObject> searchAllSubCategoryByQuery(String category_id, int page, ArrayList<SubCategoryObject> currentArrayList, String keyword) {
+    //---------------------------------------------------------------------------- subcategory search purpose-------------------------------------------------------------------/
+    public ArrayList<SubCategoryObject> searchAllSubCategoryByQuery(boolean readAllFile, String category_id, String filter, String file_id, int page, ArrayList<SubCategoryObject> currentArrayList, String keyword) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         double start;
         double limit = 10.0;
-        int totalSubCategoryRow = countSubCategoryRow(category_id);
+        int totalSubCategoryRow = countSubCategoryRow(readAllFile, category_id, file_id);
         int page_limit = (int) Math.ceil(totalSubCategoryRow / limit);
 
         page_limit = (int) Math.ceil(page_limit);
         if (page <= page_limit) {
             start = (page - 1) * limit;
 
-            String sql = "SELECT * FROM " + TB_SUB_CATEGORY +
-                    " WHERE category_id=" + category_id + " AND (barcode LIKE '%" + keyword + "%')" +
-                    " ORDER BY priority DESC" +
-                    " LIMIT " + start + " , " + limit;
+            String sql = "SELECT * FROM " + TB_SUB_CATEGORY + " WHERE ";
+            if (!readAllFile) sql = sql + "category_id=" + category_id;
+            else sql = sql + "file_id=" + file_id;
+            sql = filter(filter, sql) + " AND (barcode LIKE '%" + keyword + "%')" + " ORDER BY priority DESC" + " LIMIT " + start + " , " + limit;
 
             Cursor crs = db.rawQuery(sql, null);
 
@@ -652,5 +686,90 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         db.close();
 
         return currentArrayList;
+    }
+
+    //---------------------------------------------------------------------------all file purpose-------------------------------------------------------------------/
+
+    public int countAllFileQuantity(String fileID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = "SELECT tb_sub_category.id FROM " + TB_SUB_CATEGORY +
+                " INNER JOIN " + TB_CATEGORY +
+                " ON tb_sub_category.category_id = tb_category.id" +
+                " WHERE tb_category.file_id =" + fileID;
+        Cursor cursor = db.rawQuery(sql, null);
+        int cursorCount = cursor.getCount();
+        cursor.close();
+        return cursorCount;
+    }
+
+    //-------------------------------------------------------------------export purpose------------------------------------------------------------------------------/
+    public CSVWriter createCSVFile(String categoryID, String fileID, FileWriter file) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor;
+        String sql = "SELECT tb_category.category_name, tb_sub_category.barcode," +
+                " tb_sub_category.description, tb_sub_category.cost_price, tb_sub_category.selling_price," +
+                " tb_sub_category.system_quantity, tb_sub_category.check_quantity";
+
+        sql = dateTimeSetting(sql) + " FROM TB_SUB_CATEGORY INNER JOIN TB_CATEGORY ON tb_sub_category.category_id = tb_category.id";
+
+        if (categoryID != null) {
+            sql = sql + " WHERE tb_category.id = ? ORDER BY tb_sub_category.priority DESC";
+            cursor = db.rawQuery(sql, new String[]{categoryID});
+        } else {
+            sql = sql + " WHERE tb_category.file_id = ? ORDER BY tb_sub_category.priority DESC";
+            cursor = db.rawQuery(sql, new String[]{fileID});
+        }
+        CSVWriter csvWrite = new CSVWriter(file);
+        csvWrite.writeNext(cursor.getColumnNames());
+
+        while (cursor.moveToNext()) {
+            csvWrite.writeNext(returnValueSetup(cursor));
+
+        }
+        cursor.close();
+        db.close();
+        return csvWrite;
+    }
+
+    private String[] returnValueSetup(Cursor cursor) {
+        ArrayList<String> returnValue = new ArrayList<String>();
+        //loop each column
+        for (int i = 0; i < 7; i++) {
+            returnValue.add(cursor.getString(i));
+        }
+        //date time setting
+        if (SharedPreferenceManager.getExportDate(context).equals("1"))
+            returnValue.add(cursor.getString(cursor.getColumnIndex("date_create")));
+        if (SharedPreferenceManager.getExportTime(context).equals("1"))
+            returnValue.add(cursor.getString(cursor.getColumnIndex("time_create")));
+        //for convert array list into string array
+        //First Step: convert ArrayList to an Object array.
+        Object[] objNames = returnValue.toArray();
+        //Second Step: convert Object array to String array
+        return Arrays.copyOf(objNames, objNames.length, String[].class);
+    }
+
+    private String dateTimeSetting(String sql) {
+        if (SharedPreferenceManager.getExportDate(context).equals("1"))
+            sql = sql + ",tb_sub_category.date_create";
+        if (SharedPreferenceManager.getExportTime(context).equals("1"))
+            sql = sql + ",tb_sub_category.time_create";
+        return sql;
+    }
+
+    public String fileName(String fileID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor;
+        String fileName = "";
+        String sql = "SELECT file_name FROM tb_file WHERE id = ?";
+        cursor = db.rawQuery(sql, new String[]{fileID});
+        while (cursor.moveToNext()) {
+            fileName = cursor.getString(0);
+        }
+
+        cursor.close();
+        db.close();
+        return fileName;
     }
 }

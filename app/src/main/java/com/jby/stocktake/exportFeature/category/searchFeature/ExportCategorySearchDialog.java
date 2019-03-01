@@ -378,6 +378,7 @@ public class ExportCategorySearchDialog extends DialogFragment implements Export
                 bundle.putString("category_id", selectedCategoryID);
                 bundle.putString("category_name", selectedCategoryName);
                 bundle.putString("fromListView", "categoryLV");
+                bundle.putBoolean("readAllFile", false);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, 2);
                 closeKeyBoard();
@@ -393,6 +394,7 @@ public class ExportCategorySearchDialog extends DialogFragment implements Export
                 bundle.putString("selected_barcode", selectedBarcode);
                 bundle.putString("category_name", selectedCategoryName);
                 bundle.putString("fromListView", "subcategoryLV");
+                bundle.putBoolean("readAllFile", false);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, 2);
                 closeKeyBoard();

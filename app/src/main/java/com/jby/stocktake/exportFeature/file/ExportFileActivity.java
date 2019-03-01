@@ -14,10 +14,10 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,26 +26,24 @@ import com.jby.stocktake.database.CustomSqliteHelper;
 import com.jby.stocktake.database.FrameworkClass;
 import com.jby.stocktake.database.ResultCallBack;
 import com.jby.stocktake.exportFeature.category.ExportCategoryActivity;
-import com.jby.stocktake.home.HomeActivity;
 import com.jby.stocktake.R;
 import com.jby.stocktake.home.HomeExpireDialog;
 import com.jby.stocktake.login.LoginActivity;
 import com.jby.stocktake.others.CustomListView;
 import com.jby.stocktake.others.SquareHeightLinearLayout;
+import com.jby.stocktake.setting.DeviceNameDialog;
 import com.jby.stocktake.setting.SettingActivity;
 import com.jby.stocktake.shareObject.ApiDataObject;
 import com.jby.stocktake.shareObject.ApiManager;
 import com.jby.stocktake.shareObject.AsyncTaskManager;
 import com.jby.stocktake.shareObject.CustomToast;
 import com.jby.stocktake.shareObject.NetworkConnection;
-import com.jby.stocktake.shareObject.NetworkUtils;
 import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -56,11 +54,12 @@ import static com.jby.stocktake.database.CustomSqliteHelper.TB_FILE;
 import static com.jby.stocktake.database.CustomSqliteHelper.TB_SUB_CATEGORY;
 
 public class ExportFileActivity extends AppCompatActivity implements View.OnClickListener,
-        ExportFileListViewAdapter.CategoryAdapterCallBack,
-        SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemClickListener, ResultCallBack {
+        ExportFileListViewAdapter.CategoryAdapterCallBack, SwipeRefreshLayout.OnRefreshListener,
+        AdapterView.OnItemClickListener, ResultCallBack,
+        DeviceNameDialog.DeviceNameDialogCallback {
 
     private TextView actionBarTitle;
-    private SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
+    private ImageView actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
     private View actionBarLayout;
 
     private ExportFileListViewAdapter exportFileListViewAdapter;
@@ -96,10 +95,10 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
 
     private void objectInitialize() {
         actionBarTitle = (TextView) findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout) findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout) findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout) findViewById(R.id.actionBar_back_button);
-        actionBarCancel = (SquareHeightLinearLayout) findViewById(R.id.actionBar_cancel);
+        actionBarSearch =  findViewById(R.id.actionBar_search);
+        actionbarSetting = findViewById(R.id.actionBar_setting);
+        actionbarBackButton =  findViewById(R.id.actionBar_back_button);
+        actionBarCancel =  findViewById(R.id.actionBar_cancel);
         actionBarLayout = findViewById(R.id.activity_main_layout_action_bar);
 
         categoryFragmentListView = (CustomListView) findViewById(R.id.fragment_category_list_view);
@@ -130,7 +129,6 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         categoryFragmentListView.setOnItemClickListener(this);
 
         setActionBarTitle();
-        SharedPreferenceManager.setUserID(this, "38");
         checkingFileDetail();
         checkingSetting();
     }
@@ -147,8 +145,12 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                 int numFile = fileTable.new Read("id").count();
                 //first time login then create two new file for user
                 if (numFile < 2) {
-                    fileTable.new create("file_name", "File 1").perform();
-                    fileTable.new create("file_name", "File 2").perform();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloadFile();
+                        }
+                    }).start();
                 } else
                     setupFileDetail();
             }
@@ -159,7 +161,7 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.actionBar_setting:
-                openSetting();
+                if(exportFileActivityProgressBar.getVisibility() != View.VISIBLE) openSetting();
                 break;
         }
     }
@@ -181,18 +183,18 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         actionBarTitle.setText(R.string.activity_export_file_title);
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        switch (adapterView.getId()) {
-            case R.id.fragment_category_list_view:
-                if(!exportFileListViewObjectArrayList.get(i).getCategory_numb().equals("0")){
-                    Bundle bundle = new Bundle();
-                    bundle.putString("file_id", exportFileListViewObjectArrayList.get(i).getId());
-                    startActivity(new Intent(this, ExportCategoryActivity.class).putExtras(bundle));
-                    clickEffect(view);
-                }
-                else Toast.makeText(this, "Blank File!", Toast.LENGTH_SHORT).show();
+        if(exportFileActivityProgressBar.getVisibility() != View.VISIBLE){
+            switch (adapterView.getId()) {
+                case R.id.fragment_category_list_view:
+                    if (!exportFileListViewObjectArrayList.get(i).getCategory_numb().equals("0")) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("file_id", exportFileListViewObjectArrayList.get(i).getId());
+                        startActivity(new Intent(this, ExportCategoryActivity.class).putExtras(bundle));
+                        clickEffect(view);
+                    } else Toast.makeText(this, "Blank File!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -238,6 +240,64 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         super.onDestroy();
     }
 
+    /*--------------------------------------------------------------------------create file---------------------------------------------------------------*/
+    private void downloadFile() {
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("user_id", SharedPreferenceManager.getUserID(this)));
+
+        asyncTaskManager = new AsyncTaskManager(
+                this,
+                new ApiManager().download,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
+
+        if (!asyncTaskManager.isCancelled()) {
+
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                if (jsonObjectLoginResponse != null) {
+                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                        JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("file");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            fileTable.new create(
+                                    "file_name, created_at",
+                                    "File " + (i + 1) + "," + jsonArray.getJSONObject(i).getString("created_at"))
+                                    .perform();
+                        }
+                    }
+                } else {
+                    new CustomToast(this, "Network Error!");
+                    showProgressBar(false);
+                }
+
+            } catch (InterruptedException e) {
+                new CustomToast(this, "Interrupted Exception!");
+                showProgressBar(false);
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                new CustomToast(this, "Execution Exception!");
+                showProgressBar(false);
+                e.printStackTrace();
+            } catch (JSONException e) {
+                new CustomToast(this, "JSON Exception!!");
+                showProgressBar(false);
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                new CustomToast(this, "Connection Time Out!");
+                showProgressBar(false);
+                e.printStackTrace();
+            }
+        }
+        setupFileDetail();
+    }
+
     /*-------------------------------------------------------------------------exit purpose-----------------------------------------------------------------*/
     @Override
     public void onBackPressed() {
@@ -262,15 +322,18 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
     /*-------------------------------------------------------------------------initial checking-----------------------------------------------------------------*/
 
     public void checkingSetting() {
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null)
-            checkUserActivation = bundle.getInt("status");
+        String deviceName = SharedPreferenceManager.getDeviceName(this);
+        if (!deviceName.equals("")) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null)
+                checkUserActivation = bundle.getInt("status");
 
-        if (checkUserActivation == 0) {
-            if (new NetworkConnection(this).checkNetworkConnection()) {
-                startUp(checkUserActivation);
+            if (checkUserActivation == 0) {
+                if (new NetworkConnection(this).checkNetworkConnection()) {
+                    startUp(checkUserActivation);
+                }
             }
-        }
+        } else popOutDeviceNameDialog();
     }
 
     public void startUp(int status) {
@@ -313,6 +376,7 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
 
                 if (jsonObjectLoginResponse != null) {
                     int userPackage = jsonObjectLoginResponse.getInt("package");
+                    JSONArray fileDate = jsonObjectLoginResponse.getJSONArray("file_date");
                     SharedPreferenceManager.setUserPackage(this, userPackage);
 
                     if (jsonObjectLoginResponse.getString("status").equals("2")) {
@@ -322,7 +386,6 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                                 almostExpired();
                             }
                         });
-
                     } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -330,13 +393,14 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                                 expiredDialog();
                             }
                         });
-
                     } else if (jsonObjectLoginResponse.getString("status").equals("4")) {
                         new CustomToast(this, "Something error with server! Try it later!");
 
                     } else if (jsonObjectLoginResponse.getString("status").equals("5")) {
                         getNewVersion(jsonObjectLoginResponse.getString("url"));
                     }
+                    //check file update purpose
+                    checkFileDate(fileDate);
                 } else {
                     new CustomToast(this, "Network Error!");
                 }
@@ -405,6 +469,47 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
             }
         });
     }
+
+    public void checkFileDate(JSONArray jsonArray) {
+        StringBuilder message = new StringBuilder("We detect that there are some changes from your original file.\n");
+        boolean isUpdate = false;
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    if (exportFileListViewObjectArrayList.get(j).getId().equals(jsonArray.getJSONObject(i).getString("file_id")) && !exportFileListViewObjectArrayList.get(j).getCategory_numb().equals("0")) {
+                        if (!exportFileListViewObjectArrayList.get(j).getDate().equals(jsonArray.getJSONObject(i).getString("created_at"))) {
+                            message.append(i + 1).append(") ").append("File ").append(exportFileListViewObjectArrayList.get(j).getId()).append(" was changed!\n");
+                            isUpdate = true;
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if (isUpdate) detectFileUpdatedDialog(message.toString());
+    }
+
+    public void detectFileUpdatedDialog(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ExportFileActivity.this);
+                builder.setTitle("Notice");
+                builder.setMessage(message);
+                builder.setCancelable(true);
+                builder.setPositiveButton(
+                        "I Got It",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+    }
     /*-------------------------------------------------------------------sync purpose---------------------------------------------------------------------------*/
 
     public void downloadRequestDialog(final String fileID, String fileName) {
@@ -420,7 +525,7 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                     public void onClick(DialogInterface dialog, final int id) {
                         //setup download layout
                         showProgressBar(true);
-                        clearPreviousRecord();
+                        clearPreviousRecord(fileID);
                         dialog.dismiss();
                     }
                 });
@@ -440,10 +545,10 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         apiDataObjectArrayList.add(new ApiDataObject("user_id", SharedPreferenceManager.getUserID(this)));
 
         if (category) {
-            apiDataObjectArrayList.add(new ApiDataObject("file_id", "277"));
+            apiDataObjectArrayList.add(new ApiDataObject("file_id", fileID));
             apiDataObjectArrayList.add(new ApiDataObject("category", "1"));
         } else {
-            apiDataObjectArrayList.add(new ApiDataObject("file_id", "0"));
+            apiDataObjectArrayList.add(new ApiDataObject("file_id", fileID));
             apiDataObjectArrayList.add(new ApiDataObject("sub_category", "1"));
         }
 
@@ -466,10 +571,14 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                 if (jsonObjectLoginResponse != null) {
                     Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
                     if (jsonObjectLoginResponse.getString("status").equals("1")) {
-                        if (category)
+                        if (category) {
+                            fileTable.new Update("created_at", jsonObjectLoginResponse.getString("file_date")).where("id = ?", fileID).perform();
                             storeCategory(jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("category"));
-                        else
+                        } else
                             storeSubCategory(jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("sub_category"));
+                    } else {
+                        showProgressBar(false);
+                        new CustomToast(this, "This File is Empty!");
                     }
                 } else {
                     new CustomToast(this, "Network Error!");
@@ -505,8 +614,15 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    private void clearPreviousRecord() {
-        categoryTable.new Delete().perform();
+    private void clearPreviousRecord(final String fileID) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (customSqliteHelper.deleteFileItem(fileID)) {
+                    downloadFileContent(true, fileID);
+                }
+            }
+        }).start();
     }
 
     private void storeCategory(JSONArray jsonArray) {
@@ -540,16 +656,19 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
 
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                subCategoryTable.new create("description, barcode, check_quantity, system_quantity, category_id, selling_price, cost_price, date_create, time_create, priority", jsonArray.getJSONObject(i).getString("description") + "," +
-                        jsonArray.getJSONObject(i).getString("barcode") + " ," +
-                        jsonArray.getJSONObject(i).getString("check_quantity") + " ," +
-                        jsonArray.getJSONObject(i).getString("system_quantity") + " ," +
-                        jsonArray.getJSONObject(i).getString("category_id") + " ," +
-                        jsonArray.getJSONObject(i).getString("selling_price") + " ," +
-                        jsonArray.getJSONObject(i).getString("cost_price") + " ," +
-                        jsonArray.getJSONObject(i).getString("date_create") + " ," +
-                        jsonArray.getJSONObject(i).getString("time_create") + " ," +
-                        jsonArray.getJSONObject(i).getString("priority")).perform();
+                subCategoryTable.new create("description, barcode, item_code, check_quantity, system_quantity, category_id, selling_price, cost_price, date_create, time_create, priority, file_id",
+                        jsonArray.getJSONObject(i).getString("description") + "," +
+                                jsonArray.getJSONObject(i).getString("barcode") + " ," +
+                                jsonArray.getJSONObject(i).getString("item_code") + " ," +
+                                jsonArray.getJSONObject(i).getString("check_quantity") + " ," +
+                                jsonArray.getJSONObject(i).getString("system_quantity") + " ," +
+                                jsonArray.getJSONObject(i).getString("category_id") + " ," +
+                                jsonArray.getJSONObject(i).getString("selling_price") + " ," +
+                                jsonArray.getJSONObject(i).getString("cost_price") + " ," +
+                                jsonArray.getJSONObject(i).getString("date_create") + " ," +
+                                jsonArray.getJSONObject(i).getString("time_create") + " ," +
+                                jsonArray.getJSONObject(i).getString("priority") + " ," +
+                                fileID).perform();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -579,6 +698,20 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    /*--------------------------------------------------------------------device name----------------------------------------------------------------------------*/
+    @Override
+    public void deviceNameSetting() {
+
+    }
+
+    public void popOutDeviceNameDialog() {
+        DialogFragment dialogFragment = new DeviceNameDialog();
+        Bundle bundle = new Bundle();
+        bundle.putString("from", "home");
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getSupportFragmentManager(), "");
+    }
+
     /*----------------------------------------------------------------------framework purpose----------------------------------------------------------------------*/
     @Override
     public void createResult(String status) {
@@ -601,11 +734,14 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void deleteResult(String status) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                downloadFileContent(true, fileID);
-            }
-        }).start();
+    }
+
+    /*-------------------------------------------------------------------logt out------------------------------------------------------------------------------*/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 3)
+            logOutSetting();
     }
 }

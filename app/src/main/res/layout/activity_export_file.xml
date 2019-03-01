@@ -14,7 +14,7 @@
         tools:context="com.jby.stocktake.login.LoginActivity">
 
         <include
-            layout="@layout/subcategory_actionbar"
+            layout="@layout/actionbar"
             android:id="@+id/activity_main_layout_action_bar"
             android:layout_height="?android:actionBarSize"
             android:layout_width="match_parent"/>

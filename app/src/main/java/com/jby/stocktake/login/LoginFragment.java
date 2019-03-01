@@ -2,12 +2,10 @@ package com.jby.stocktake.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jby.stocktake.exportFeature.file.ExportFileActivity;
-import com.jby.stocktake.home.HomeActivity;
 import com.jby.stocktake.R;
 import com.jby.stocktake.shareObject.AnimationUtility;
 import com.jby.stocktake.shareObject.ApiDataObject;

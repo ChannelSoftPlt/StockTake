@@ -74,7 +74,7 @@ public class SubCategoryMoveItemDialog extends DialogFragment implements Adapter
         tbCategory = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_CATEGORY);
         tbSubCategory = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_SUB_CATEGORY);
 
-        subCategoryMoveItemDialogCallBack = (SubCategoryMoveItemDialogCallBack)getActivity();
+        subCategoryMoveItemDialogCallBack = (SubCategoryMoveItemDialogCallBack) getActivity();
     }
 
     public void objectSetting() {
@@ -93,18 +93,23 @@ public class SubCategoryMoveItemDialog extends DialogFragment implements Adapter
         moveRequest(i, categoryList.get(i));
     }
 
-    private void setUpListView(String result) {
-        try {
-            jsonArray = new JSONObject(result).getJSONArray("result");
-            categoryList = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                categoryList.add(jsonArray.getJSONObject(i).getString("category_name"));
+    private void setUpListView(final String result) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    jsonArray = new JSONObject(result).getJSONArray("result");
+                    categoryList = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        categoryList.add(jsonArray.getJSONObject(i).getString("category_name"));
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, categoryList);
+                    subCategoryMoveItemDialogListView.setAdapter(adapter);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, categoryList);
-            subCategoryMoveItemDialogListView.setAdapter(adapter);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     //    --------------------------------------------------------------move purpose------------------------------------------------------------------------------

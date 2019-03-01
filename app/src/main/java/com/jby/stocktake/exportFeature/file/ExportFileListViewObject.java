@@ -8,11 +8,13 @@ public class ExportFileListViewObject {
     private String id;
     private String file;
     private String numCategory;
+    private String date;
 
-    public ExportFileListViewObject(String id, String file, String numCategory) {
+    public ExportFileListViewObject(String id, String file, String numCategory, String date) {
         this.id = id;
         this.file = file;
         this.numCategory = numCategory;
+        this.date = date;
     }
 
     public String getId() {
@@ -25,5 +27,9 @@ public class ExportFileListViewObject {
 
     String getCategory_numb() {
         return numCategory;
+    }
+
+    public String getDate() {
+        return date;
     }
 }

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,7 @@ public class UserAccountActivity extends AppCompatActivity implements View.OnCli
     TextView userAccountActivityUserStatus, userAccountActivityUserPackage, userAccountActivityUserLastActiveDate, userAccountActivityUserExpireDate;
     TextView userAccountActivityContactUs, userAccountActivityUserName, userAccountActivityUserEmail;
     private TextView actionBarTitle;
-    SquareHeightLinearLayout actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
+    ImageView actionBarSearch, actionbarSetting, actionbarBackButton, actionBarCancel;
     ProgressDialog pd;
     Handler handler;
     AsyncTaskManager asyncTaskManager;
@@ -58,9 +59,9 @@ public class UserAccountActivity extends AppCompatActivity implements View.OnCli
         userAccountActivityUserName = (TextView)findViewById(R.id.activity_user_account_username);
 
         actionBarTitle = (TextView)findViewById(R.id.actionBar_title);
-        actionBarSearch = (SquareHeightLinearLayout)findViewById(R.id.actionBar_search);
-        actionbarSetting = (SquareHeightLinearLayout)findViewById(R.id.actionBar_setting);
-        actionbarBackButton = (SquareHeightLinearLayout)findViewById(R.id.actionBar_back_button);
+        actionBarSearch = findViewById(R.id.actionBar_search);
+        actionbarSetting = findViewById(R.id.actionBar_setting);
+        actionbarBackButton = findViewById(R.id.actionBar_back_button);
 
         handler = new Handler();
         pd = new ProgressDialog(this);
