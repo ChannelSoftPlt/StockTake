@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
+//testing
 public class LoginFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener,
         TextView.OnEditorActionListener {
     View rootView;
