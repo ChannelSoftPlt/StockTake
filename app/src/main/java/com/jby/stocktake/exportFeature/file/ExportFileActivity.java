@@ -30,7 +30,6 @@ import com.jby.stocktake.R;
 import com.jby.stocktake.home.HomeExpireDialog;
 import com.jby.stocktake.login.LoginActivity;
 import com.jby.stocktake.others.CustomListView;
-import com.jby.stocktake.others.SquareHeightLinearLayout;
 import com.jby.stocktake.setting.DeviceNameDialog;
 import com.jby.stocktake.setting.SettingActivity;
 import com.jby.stocktake.shareObject.ApiDataObject;
@@ -378,26 +377,34 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
                     int userPackage = jsonObjectLoginResponse.getInt("package");
                     JSONArray fileDate = jsonObjectLoginResponse.getJSONArray("file_date");
                     SharedPreferenceManager.setUserPackage(this, userPackage);
+                    //update user status based on activation date
+                    if(jsonObjectLoginResponse.getString("status").equals("3")) SharedPreferenceManager.setUserStatus(this, "1");
+                    else SharedPreferenceManager.setUserStatus(this, "0");
 
-                    if (jsonObjectLoginResponse.getString("status").equals("2")) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                almostExpired();
-                            }
-                        });
-                    } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                expiredDialog();
-                            }
-                        });
-                    } else if (jsonObjectLoginResponse.getString("status").equals("4")) {
-                        new CustomToast(this, "Something error with server! Try it later!");
+                    switch (jsonObjectLoginResponse.getString("status")) {
+                        case "2":
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    almostExpired();
+                                }
+                            });
+                            break;
+                        case "3":
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    expiredDialog();
+                                }
+                            });
+                            break;
+                        case "4":
+                            new CustomToast(this, "Something error with server! Try it later!");
 
-                    } else if (jsonObjectLoginResponse.getString("status").equals("5")) {
-                        getNewVersion(jsonObjectLoginResponse.getString("url"));
+                            break;
+                        case "5":
+                            getNewVersion(jsonObjectLoginResponse.getString("url"));
+                            break;
                     }
                     //check file update purpose
                     checkFileDate(fileDate);
@@ -683,7 +690,7 @@ public class ExportFileActivity extends AppCompatActivity implements View.OnClic
         runOnUiThread(new Runnable() {
             public void run() {
                 exportFileActivityDownloadLayout.setVisibility(View.VISIBLE);
-                exportFileActivityDownloadMaxNumber.setText("/" + String.valueOf(maxProgress));
+                exportFileActivityDownloadMaxNumber.setText("/" + maxProgress);
                 exportFileActivityDownloadProgress.setMax(maxProgress);
             }
         });

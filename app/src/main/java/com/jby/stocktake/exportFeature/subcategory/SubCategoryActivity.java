@@ -323,7 +323,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                                 subCategoryScanResult.setText("");
                             }
                         }
-                    }, 150);
+                    }, 600);
                     break;
                 case R.id.action_bar_search_field:
                     page = 1;
@@ -705,25 +705,34 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             @Override
             public void run() {
                 try {
-                    JSONArray jsonArray = customSqliteHelper.fetchAllSubCategory(readAllFile, categoryID, filter, fileID, page).getJSONArray("sub_category");
+                    final JSONArray jsonArray = customSqliteHelper.fetchAllSubCategory(readAllFile, categoryID, filter, fileID, page).getJSONArray("sub_category");
                     Log.d("haha", "haha: " + jsonArray);
-                    if (jsonArray.length() > 0) {
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            subCategoryObjectArrayList.add(new SubCategoryObject(
-                                    jsonArray.getJSONObject(i).getString("id"),
-                                    jsonArray.getJSONObject(i).getString("barcode"),
-                                    jsonArray.getJSONObject(i).getString("checkQuantity"),
-                                    jsonArray.getJSONObject(i).getString("systemQuantity"),
-                                    jsonArray.getJSONObject(i).getString("date"),
-                                    jsonArray.getJSONObject(i).getString("time")
-                            ));
-                            isLoading = true;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (jsonArray.length() > 0) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    try {
+                                        subCategoryObjectArrayList.add(new SubCategoryObject(
+                                                jsonArray.getJSONObject(i).getString("id"),
+                                                jsonArray.getJSONObject(i).getString("barcode"),
+                                                jsonArray.getJSONObject(i).getString("checkQuantity"),
+                                                jsonArray.getJSONObject(i).getString("systemQuantity"),
+                                                jsonArray.getJSONObject(i).getString("date"),
+                                                jsonArray.getJSONObject(i).getString("time")
+                                        ));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    isLoading = true;
+                                }
+                            } else {
+                                finishLoadAll = true;
+                            }
+                            setListViewVisibility();
+                            isLoading = false;
                         }
-                    } else {
-                        finishLoadAll = true;
-                    }
-                    setListViewVisibility();
-                    isLoading = false;
+                    });
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -732,23 +741,18 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     }
 
     public void setListViewVisibility() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (subCategoryObjectArrayList.size() > 0) {
+        if (subCategoryObjectArrayList.size() > 0) {
 //            if data found
-                    subCategoryListView.setVisibility(View.VISIBLE);
-                    subCategoryNotFound.setVisibility(View.GONE);
-                    subCategoryLabelListView.setVisibility(View.VISIBLE);
-                } else {
+            subCategoryListView.setVisibility(View.VISIBLE);
+            subCategoryNotFound.setVisibility(View.GONE);
+            subCategoryLabelListView.setVisibility(View.VISIBLE);
+        } else {
 //            if not found
-                    subCategoryListView.setVisibility(View.INVISIBLE);
-                    subCategoryNotFound.setVisibility(View.VISIBLE);
-                    subCategoryLabelListView.setVisibility(View.GONE);
-                }
-                subCategoryListViewAdapter.notifyDataSetChanged();
-            }
-        });
+            subCategoryListView.setVisibility(View.INVISIBLE);
+            subCategoryNotFound.setVisibility(View.VISIBLE);
+            subCategoryLabelListView.setVisibility(View.GONE);
+        }
+        subCategoryListViewAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -849,6 +853,28 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
     }
 
     /*------------------------------------------------------------------export file----------------------------------------------------------------------*/
+    public void checkUserStatus() {
+        if(!SharedPreferenceManager.getUserStatus(this).equals("1")) readPhonePermission();
+        else userExpiredDialog();
+    }
+
+    private void userExpiredDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Warning");
+        builder.setMessage("Your account activation is no longer valid!\nPlease contact with the person in charge in order to renew your membership");
+        builder.setCancelable(true);
+
+        builder.setNegativeButton(
+                "I Got It",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public void readPhonePermission() {
         if (checkReadStatePermission()) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -985,7 +1011,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
                 "I'm Sure",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        readPhonePermission();
+                        checkUserStatus();
                     }
                 });
         builder.setNegativeButton(
@@ -1005,7 +1031,7 @@ public class SubCategoryActivity extends AppCompatActivity implements CustomList
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SubCategoryActivity.this);
                 builder.setTitle("Warning");
-                builder.setMessage("");
+                builder.setMessage(R.string.file_max);
                 builder.setCancelable(true);
 
                 builder.setPositiveButton(

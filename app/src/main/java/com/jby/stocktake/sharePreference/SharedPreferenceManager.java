@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 
 public class SharedPreferenceManager {
 
-
     private static String LanguageId = "language_id";
     private static String UserID = "uid";
     private static String Version = "version";
@@ -20,23 +19,20 @@ public class SharedPreferenceManager {
     private static String QuickScanQuantity = "quickScanQuantity";
     private static String Reminder = "reminder";
     private static String ScanSound = "scanSound";
+    private static String QuantityDecimal = "quantityDecimal";
     private static String DeviceToken = "deviceToken";
     private static String DeviceName = "deviceName";
     private static String UserPackage = "userPackage";
     private static String ExportTime = "exportTime";
     private static String ExportDate = "exportDate";
-
+    private static String UserStatus = "userStatus";
     private static SharedPreferences getSharedPreferences(Context context) {
-        String SharedPreferenceFileName = "MJTaiwanUserLoginSessionDetail";
+        String SharedPreferenceFileName = "StockTakeUserSession";
         return context.getSharedPreferences(SharedPreferenceFileName, Context.MODE_PRIVATE);
     }
 
     public static void clear(Context context){
         getSharedPreferences(context).edit().clear().apply();
-    }
-
-    public static boolean stayLogin(Context context){
-        return getRememberMe(context).equals("1");
     }
 
     /*
@@ -49,6 +45,14 @@ public class SharedPreferenceManager {
 
     public static void setLanguageId(Context context, String languageId) {
         getSharedPreferences(context).edit().putString(LanguageId, languageId).apply();
+    }
+
+    public static String getQuantityDecimal(Context context) {
+        return getSharedPreferences(context).getString(QuantityDecimal, "1");
+    }
+
+    public static void setQuantityDecimal(Context context, String quantityDecimal) {
+        getSharedPreferences(context).edit().putString(QuantityDecimal, quantityDecimal).apply();
     }
 
     public static String getUserID(Context context) {
@@ -148,6 +152,14 @@ public class SharedPreferenceManager {
         getSharedPreferences(context).edit().putInt(UserPackage, userPackage).apply();
     }
 
+    public static String getUserStatus(Context context) {
+        return getSharedPreferences(context).getString(UserStatus, "0");
+    }
+
+    public static void setUserStatus(Context context, String userStatus) {
+        getSharedPreferences(context).edit().putString(UserStatus, userStatus).apply();
+    }
+
     public static String getExportDate(Context context) {
         return getSharedPreferences(context).getString(ExportDate, "0");
     }
@@ -164,4 +176,44 @@ public class SharedPreferenceManager {
         getSharedPreferences(context).edit().putString(ExportTime, exportTime).apply();
     }
 
+    public static void setExportDefaultValue(Context context, String key, String value){
+        getSharedPreferences(context).edit().putString(key, value).apply();
+    }
+
+    public static String getExportDefaultValue(Context context, String key) {
+        return getSharedPreferences(context).getString(key, getExportDefaultValue(key));
+    }
+
+    public static void setExportField(Context context, String key, String value){
+        getSharedPreferences(context).edit().putString(key, value).apply();
+    }
+
+    public static String getExportField(Context context, String key) {
+        return getSharedPreferences(context).getString(key, "1");
+    }
+
+    private static String getExportDefaultValue(String fieldName){
+        switch (fieldName){
+            case "ExportCategoryValue":
+                return "Category";
+            case "ExportItemCodeValue":
+                return "Item Code";
+            case "ExportDescriptionValue":
+                return "Description";
+            case "ExportBarcodeValue":
+                return "Barcode";
+            case "ExportSellingPriceValue":
+                return "Selling Price";
+            case "ExportCostPriceValue":
+                return "Cost Price";
+            case "ExportSystemQuantityValue":
+                return "System Quantity";
+                case "ExportCheckQuantityValue":
+                return "Check Quantity";
+            case "ExportDateValue":
+                return "Date";
+            default:
+                return "Time";
+        }
+    }
 }

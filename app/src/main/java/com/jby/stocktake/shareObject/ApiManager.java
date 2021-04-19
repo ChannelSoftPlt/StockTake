@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class ApiManager {
     private String domain = "http://www.chafor.net";
-    private String prefix = "/testing";
+    private String prefix = "/stocktake";
     //    login and registration
     public String registerID = domain + prefix + "/registration/register.php";
     public String login = domain + prefix + "/registration/login.php";

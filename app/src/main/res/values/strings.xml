@@ -166,4 +166,12 @@
     <string name="fragment_setting_label_export_date">Date</string>
     <string name="fragment_setting_label_export_time">Time</string>
     <string name="fragment_sub_category_update_dialog_label_category">Category:</string>
+    <string name="fragment_setting_label_export_category">Category</string>
+    <string name="fragment_setting_label_export_item_code">Item No</string>
+    <string name="fragment_setting_label_export_description">Description</string>
+    <string name="fragment_setting_label_export_barcode">Barcode</string>
+    <string name="fragment_setting_label_export_system_quantity">System Quantity</string>
+    <string name="fragment_setting_label_export_check_quantity">Check Quantity</string>
+    <string name="fragment_setting_label_export_selling_price">Selling Price</string>
+    <string name="fragment_setting_label_export_cost_price">Cost Price</string>
 </resources>

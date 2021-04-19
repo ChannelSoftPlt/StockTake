@@ -26,6 +26,7 @@ import com.jby.stocktake.R;
 import com.jby.stocktake.database.CustomSqliteHelper;
 import com.jby.stocktake.database.FrameworkClass;
 import com.jby.stocktake.database.ResultCallBack;
+import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -157,7 +158,8 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
     public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
         switch (textView.getId()) {
             case R.id.fragment_sub_category_update_dialog_quantity:
-                if (actionId == EditorInfo.IME_NULL && keyEvent.getAction() == KeyEvent.ACTION_DOWN) updateBarcodeNQuantity();
+                if (actionId == EditorInfo.IME_NULL && keyEvent.getAction() == KeyEvent.ACTION_DOWN)
+                    updateBarcodeNQuantity();
                 break;
         }
         return false;
@@ -165,15 +167,12 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
 
     public void updateBarcodeNQuantity() {
         try {
-            Double quantity = Double.valueOf(subCategoryUpdateDialogEditTextQuantity.getText().toString());
-            if (quantity > 0) {
-                if (!String.valueOf(quantity).equals(currentQuantity)) {
-                    subCategoryUpdateDialogCallBack.updateSubCategoryItem(String.valueOf(quantity), id);
-                }
-                closeKeyBoard();
-                dismiss();
-            } else
-                alertMessage();
+            String quantity = subCategoryUpdateDialogEditTextQuantity.getText().toString();
+            if (!quantity.equals(currentQuantity)) {
+                subCategoryUpdateDialogCallBack.updateSubCategoryItem(quantity, id);
+            }
+            closeKeyBoard();
+            dismiss();
         } catch (NumberFormatException e) {
             Toast.makeText(getActivity(), "Invalid Quantity!", Toast.LENGTH_SHORT).show();
         }
@@ -182,8 +181,8 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
     private void setUpValue(String result) {
         object = customSqliteHelper.getItemDetail(id);
         subCategoryUpdateDialogEditTextBarcode.setText(object.getBarcode());
-        subCategoryUpdateDialogEditTextQuantity.setText(object.getCheckQuantity());
         subCategoryUpdateDialogTextViewDate.setText(object.getDate() + " " + object.getTime());
+        subCategoryUpdateDialogEditTextQuantity.setText(checkQuantityFormat(object.getCheckQuantity()));
 
         if (object.getSystemQuantity().equals("0"))
             subCategoryUpdateDialogTextViewSystemQuantity.setText("-");
@@ -210,10 +209,20 @@ public class SubCategoryUpdateDialog extends DialogFragment implements View.OnCl
         } else
             subCategoryUpdateDialogTextViewItemCode.setText(object.getItemCode());
 
-        if (object.getCategoryName().equals("")) {
+        if (object.getCategoryName() != null && object.getCategoryName().equals("")) {
             subCategoryUpdateDialogTextViewCategory.setText("-");
         } else
             subCategoryUpdateDialogTextViewCategory.setText(object.getCategoryName());
+    }
+
+    private String checkQuantityFormat(String checkQuantity) {
+        try {
+            if (SharedPreferenceManager.getQuantityDecimal(getActivity()).equals("default"))
+                return checkQuantity.split("\\.")[0];
+        } catch (Exception e) {
+            return checkQuantity;
+        }
+        return checkQuantity;
     }
 
     public void showKeyBoard() {

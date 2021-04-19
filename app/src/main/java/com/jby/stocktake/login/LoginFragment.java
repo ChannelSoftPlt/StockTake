@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,9 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 
-
 public class LoginFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener,
-        TextView.OnEditorActionListener{
+        TextView.OnEditorActionListener {
     View rootView;
     private EditText loginFragmentEditTextEmail;
     private EditText loginFragmentEditTextPassword;
@@ -68,7 +68,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView =  inflater.inflate(R.layout.fragment_login, container, false);
+        rootView = inflater.inflate(R.layout.fragment_login, container, false);
         objectInitialize();
         objectSetting();
         return rootView;
@@ -79,7 +79,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
         loginFragmentEditTextPassword = (EditText) rootView.findViewById(R.id.fragment_login_editText_password);
 
         loginFragmentImageViewLogo = (ImageView) rootView.findViewById(R.id.fragment_login_logo);
-        loginFragmentButtonSignIn = (Button)rootView.findViewById(R.id.frament_login_button_sign_in);
+        loginFragmentButtonSignIn = (Button) rootView.findViewById(R.id.frament_login_button_sign_in);
         loginFragmentCheckBoxPassword = (CheckBox) rootView.findViewById(R.id.fragment_login_checkBox_password);
 
         loginFragmentTextViewSignUp = (TextView) rootView.findViewById(R.id.fragment_login_editText_signUp);
@@ -101,25 +101,25 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
             public void run() {
                 setupLogo(true);
             }
-        },200);
+        }, 200);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.fragment_login_editText_signUp:
-                ((LoginActivity)getActivity()).setCurrentPage(1);
+                ((LoginActivity) getActivity()).setCurrentPage(1);
                 break;
             case R.id.frament_login_button_sign_in:
-                ((LoginActivity)getActivity()).readPhonePermission(1);
+                ((LoginActivity) getActivity()).readPhonePermission(1);
                 break;
             case R.id.fragment_login_editText_forgotPassword:
-                ((LoginActivity)getActivity()).setCurrentPage(2);
+                ((LoginActivity) getActivity()).setCurrentPage(2);
         }
     }
 
-    public void checkingInput(){
-        if(!loginFragmentEditTextEmail.getText().toString().equals("") && !loginFragmentEditTextPassword.getText().toString().equals("")){
+    public void checkingInput() {
+        if (!loginFragmentEditTextEmail.getText().toString().equals("") && !loginFragmentEditTextPassword.getText().toString().equals("")) {
 
             handler.postDelayed(new Runnable() {
                 @Override
@@ -128,15 +128,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
                 }
             }, 200);
 
-        }else{
-            ((LoginActivity)getActivity()).alertMessage("All the field above is required");
+        } else {
+            ((LoginActivity) getActivity()).alertMessage("All the field above is required");
         }
     }
-    public void login(String email, String password){
+
+    public void login(String email, String password) {
         apiDataObjectArrayList = new ArrayList<>();
-        apiDataObjectArrayList.add(new ApiDataObject("email",email));
-        apiDataObjectArrayList.add(new ApiDataObject("password",password));
-        apiDataObjectArrayList.add(new ApiDataObject("imei_num", ((LoginActivity)getActivity()).getIMEI()));
+        apiDataObjectArrayList.add(new ApiDataObject("email", email));
+        apiDataObjectArrayList.add(new ApiDataObject("password", password));
+        apiDataObjectArrayList.add(new ApiDataObject("imei_num", ((LoginActivity) getActivity()).getIMEI() == null ? "null" : ((LoginActivity) getActivity()).getIMEI()));
 
         asyncTaskManager = new AsyncTaskManager(
                 getContext(),
@@ -157,23 +158,19 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
                     if (jsonObjectLoginResponse.getString("status").equals("1")) {
                         Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
                         closeKeyBoard();
-                        SharedPreferenceManager.setUserID(getActivity(),jsonObjectLoginResponse.getString("user_id"));
+                        SharedPreferenceManager.setUserID(getActivity(), jsonObjectLoginResponse.getString("user_id"));
                         SharedPreferenceManager.setUserPassword(getActivity(), loginFragmentEditTextPassword.getText().toString());
                         startActivity(new Intent(getActivity(), ExportFileActivity.class));
                         getActivity().finish();
-                    }
-                    else if (jsonObjectLoginResponse.getString("status").equals("2")) {
+                    } else if (jsonObjectLoginResponse.getString("status").equals("2")) {
                         Toast.makeText(getActivity(), "Invalid username or password!", Toast.LENGTH_SHORT).show();
 
-                    }
-                    else if (jsonObjectLoginResponse.getString("status").equals("3")) {
-                        ((LoginActivity)getActivity()).alertMessage("This device is not allow to perform this action!");
-                    }
-                    else if(jsonObjectLoginResponse.getString("status").equals("4")){
+                    } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
+                        ((LoginActivity) getActivity()).alertMessage("This device is not allow to perform this action!");
+                    } else if (jsonObjectLoginResponse.getString("status").equals("4")) {
                         Toast.makeText(getActivity(), "Something error with server! Try it later!", Toast.LENGTH_SHORT).show();
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getActivity(), "Network Error!", Toast.LENGTH_SHORT).show();
                 }
             } catch (InterruptedException e) {
@@ -194,32 +191,29 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
 
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        switch (compoundButton.getId()){
+        switch (compoundButton.getId()) {
             case R.id.fragment_login_checkBox_password:
-                if(b)
-                {
+                if (b) {
                     loginFragmentTextViewPassword.setText(R.string.fragment_register_mask_password);
                     loginFragmentEditTextPassword.setTransformationMethod(null);
-                }
-                else
-                {
+                } else {
                     loginFragmentTextViewPassword.setText(R.string.fragment_register_unmask_password);
                     loginFragmentEditTextPassword.setTransformationMethod(new PasswordTransformationMethod());
                 }
                 break;
         }
     }
-    public void setupLogo(final boolean show){
-        if(show){
+
+    public void setupLogo(final boolean show) {
+        if (show) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     new AnimationUtility().fadeInVisible(getActivity(), loginFragmentImageViewLogo);
 
                 }
-            },200);
-        }
-        else{
+            }, 200);
+        } else {
             loginFragmentImageViewLogo.setVisibility(View.GONE);
         }
 
@@ -227,17 +221,17 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Com
 
     @Override
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        switch (textView.getId()){
+        switch (textView.getId()) {
             case R.id.fragment_login_editText_password:
-                ((LoginActivity)getActivity()).readPhonePermission(1);
+                ((LoginActivity) getActivity()).readPhonePermission(1);
                 break;
         }
         return true;
     }
 
-    public void closeKeyBoard(){
+    public void closeKeyBoard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(imm != null)
+        if (imm != null)
             imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
     }
 }

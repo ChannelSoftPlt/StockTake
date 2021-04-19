@@ -127,7 +127,7 @@ public class FrameworkClass {
             return this;
         }
 
-        //where query
+        //group by
         public Read groupBY(String column) {
             if (column != null) query += " GROUP BY " + column;
             return this;

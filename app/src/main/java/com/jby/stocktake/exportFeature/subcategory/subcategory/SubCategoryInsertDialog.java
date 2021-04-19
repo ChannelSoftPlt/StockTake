@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jby.stocktake.R;
+import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 public class SubCategoryInsertDialog extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
     View rootView;
@@ -59,7 +61,6 @@ public class SubCategoryInsertDialog extends DialogFragment implements View.OnCl
         subCategoryInsertDialogEditTextQuantity = (EditText) rootView.findViewById(R.id.fragment_sub_category_insert_dialog_quantity);
 
         createDialogCallBack = (CreateDialogCallBack) getActivity();
-
     }
 
     public void objectSetting() {
@@ -146,15 +147,15 @@ public class SubCategoryInsertDialog extends DialogFragment implements View.OnCl
     public void insert() {
         try {
             String barcode = subCategoryInsertDialogEditTextBarcode.getText().toString();
-            Double quantity = Double.valueOf(subCategoryInsertDialogEditTextQuantity.getText().toString());
-            if (!barcode.equals("") && quantity > 0) {
-                createDialogCallBack.insertSubCategoryItem(barcode, String.valueOf(quantity));
+            String quantity = subCategoryInsertDialogEditTextQuantity.getText().toString();
+            if (!barcode.equals("")) {
+                createDialogCallBack.insertSubCategoryItem(barcode, quantity);
                 closeKeyBoard();
                 dismiss();
             } else
                 alertMessage();
         } catch (NumberFormatException e) {
-            Toast.makeText(getActivity(), "Invalid Quantity!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Invalid Input!", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.jby.stocktake.R;
 import com.jby.stocktake.database.CustomSqliteHelper;
+import com.jby.stocktake.sharePreference.SharedPreferenceManager;
 
 import java.util.ArrayList;
 
@@ -32,7 +33,7 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
     private boolean readAllFile;
 
     public SubCategoryListViewAdapter(Context context, ArrayList<SubCategoryObject> subCategoryObjectArrayList, String categoryID, boolean readAllFile, String fileID
-                                      ,SubCategoryListViewAdapterCallBack subCategoryListViewAdapterCallBack) {
+            , SubCategoryListViewAdapterCallBack subCategoryListViewAdapterCallBack) {
         this.context = context;
         this.subCategoryObjectArrayList = subCategoryObjectArrayList;
         customSqliteHelper = new CustomSqliteHelper(context);
@@ -77,11 +78,11 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
         viewHolder.number.setText(String.valueOf(totalRow));
         viewHolder.barcode.setText(object.getBarcode());
         viewHolder.systemQuantity.setText(object.getSystemQuantity());
-        viewHolder.checkQuantity.setText(object.getCheckQuantity());
+        viewHolder.checkQuantity.setText(checkQuantityFormat(object.getCheckQuantity()));
+        Log.d("haha","check quantity: " + checkQuantityFormat(object.getCheckQuantity()));
         viewHolder.date.setText(object.getDate());
         viewHolder.time.setText(object.getTime());
         viewHolder.status.setText(getStatus(object.getCheckQuantity(), object.getSystemQuantity()));
-        ;
         if (deleteItem.size() > 0) {
             if (deleteItem.get(i)) {
                 viewHolder.subCategoryInnerLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.list_view_background));
@@ -105,6 +106,16 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
 
     private String getCategoryID() {
         return categoryID;
+    }
+
+    private String checkQuantityFormat(String checkQuantity) {
+        try {
+            if (SharedPreferenceManager.getQuantityDecimal(context).equals("default"))
+                return checkQuantity.split("\\.")[0];
+        } catch (Exception e) {
+            return checkQuantity;
+        }
+        return checkQuantity;
     }
 
     /*-------------------------------------------------------------------delete purpose-------------------------------------------------------------------*/
@@ -202,7 +213,7 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
 
     /*-----------------------------------------------------------check quantity status-----------------------------------------------------------------------*/
     private String getStatus(String checkQuantity, String systemQuantity) {
-        try{
+        try {
             double cq = Double.valueOf(checkQuantity);
             double sq = Double.valueOf(systemQuantity);
             if (cq > sq)
@@ -211,7 +222,7 @@ public class SubCategoryListViewAdapter extends BaseAdapter {
                 return context.getResources().getString(R.string.activity_import_sub_category_status_less);
             else
                 return context.getResources().getString(R.string.activity_import_sub_category_status_balance);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return "-";
         }
     }

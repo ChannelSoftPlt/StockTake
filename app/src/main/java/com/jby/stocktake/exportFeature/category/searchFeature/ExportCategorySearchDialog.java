@@ -193,7 +193,6 @@ public class ExportCategorySearchDialog extends DialogFragment implements Export
 
     //    get Item
     public void searchCategoryItem(final String keyword){
-
                 resetListView();
                 exportCategorySearchCategoryObjectArrayList = customSqliteHelper.searchAllCategoryByQuery(fileID, exportCategorySearchCategoryObjectArrayList, keyword);
                 exportCategorySearchSubCategoryAdapterArrayList = customSqliteHelper.searchAllSubCategoryFromCategory(fileID, exportCategorySearchSubCategoryAdapterArrayList, keyword);

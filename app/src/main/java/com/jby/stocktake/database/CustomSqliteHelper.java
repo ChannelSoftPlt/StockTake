@@ -7,11 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jby.stocktake.exportFeature.category.ExportCategoryListViewObject;
 import com.jby.stocktake.exportFeature.category.searchFeature.ExportCategorySearchCategoryObject;
 import com.jby.stocktake.exportFeature.category.searchFeature.ExportCategorySearchSubCategoryObject;
 import com.jby.stocktake.exportFeature.file.ExportFileListViewObject;
+import com.jby.stocktake.exportFeature.subcategory.subcategory.CsvObject;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.SubCategoryObject;
 import com.jby.stocktake.exportFeature.subcategory.subcategory.takeAction.TakeActionObject;
 import com.jby.stocktake.others.CSVWriter;
@@ -284,7 +286,8 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
                 " FROM " + TB_SUB_CATEGORY +
                 " INNER JOIN " + TB_CATEGORY +
                 " ON tb_sub_category.category_id = tb_category.id" +
-                " WHERE tb_category.file_id=" + fileID + " AND (tb_sub_category.barcode LIKE '%" + keyword + "%')" +
+                " WHERE tb_category.file_id=" + fileID +
+                " AND (tb_sub_category.barcode LIKE '%" + keyword + "%' OR tb_sub_category.description LIKE '%" + keyword + "%')" +
                 " ORDER BY tb_sub_category.priority DESC";
 
         Cursor crs = db.rawQuery(sql, null);
@@ -451,8 +454,8 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
             cursor = db.rawQuery(sql, new String[]{barcode, categoryID});
             //check by all file
         } else {
-            sql = sql + " WHERE barcode= ? ORDER BY id DESC";
-            cursor = db.rawQuery(sql, new String[]{barcode});
+            sql = sql + " WHERE barcode= ? AND file_id = ? ORDER BY id DESC";
+            cursor = db.rawQuery(sql, new String[]{barcode, file_id});
         }
         //update existed record
         if (cursor.getCount() != 0) {
@@ -519,7 +522,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
         SubCategoryObject object = null;
         String sql = "SELECT tb_category.category_name, tb_sub_category.barcode, tb_sub_category.item_code, tb_sub_category.check_quantity, tb_sub_category.system_quantity, tb_sub_category.cost_price, tb_sub_category.selling_price, tb_sub_category.date_create, tb_sub_category.time_create, tb_sub_category.description" +
                 " FROM " + TB_SUB_CATEGORY +
-                " INNER JOIN TB_CATEGORY ON tb_category.id = tb_sub_category.category_id" +
+                " LEFT JOIN TB_CATEGORY ON tb_category.id = tb_sub_category.category_id" +
                 " WHERE tb_sub_category.id = " + itemID;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -667,7 +670,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
             String sql = "SELECT * FROM " + TB_SUB_CATEGORY + " WHERE ";
             if (!readAllFile) sql = sql + "category_id=" + category_id;
             else sql = sql + "file_id=" + file_id;
-            sql = filter(filter, sql) + " AND (barcode LIKE '%" + keyword + "%')" + " ORDER BY priority DESC" + " LIMIT " + start + " , " + limit;
+            sql = filter(filter, sql) + " AND (barcode LIKE '%" + keyword + "%' OR description LIKE '%" + keyword + "%')" + " ORDER BY priority DESC" + " LIMIT " + start + " , " + limit;
 
             Cursor crs = db.rawQuery(sql, null);
 
@@ -707,55 +710,109 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
     public CSVWriter createCSVFile(String categoryID, String fileID, FileWriter file) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor;
-        String sql = "SELECT tb_category.category_name, tb_sub_category.barcode," +
-                " tb_sub_category.description, tb_sub_category.cost_price, tb_sub_category.selling_price," +
-                " tb_sub_category.system_quantity, tb_sub_category.check_quantity";
-
-        sql = dateTimeSetting(sql) + " FROM TB_SUB_CATEGORY INNER JOIN TB_CATEGORY ON tb_sub_category.category_id = tb_category.id";
-
-        if (categoryID != null) {
-            sql = sql + " WHERE tb_category.id = ? ORDER BY tb_sub_category.priority DESC";
-            cursor = db.rawQuery(sql, new String[]{categoryID});
+        StringBuilder sql = new StringBuilder("SELECT ");
+        ArrayList<CsvObject> columns = getColumns();
+        if (columns.size() > 0) {
+            for (int i = 0; i < columns.size(); i++) {
+                if (i == 0)
+                    sql.append(columns.get(i).getColumns().substring(1));
+                else
+                    sql.append(columns.get(i).getColumns());
+            }
         } else {
-            sql = sql + " WHERE tb_category.file_id = ? ORDER BY tb_sub_category.priority DESC";
-            cursor = db.rawQuery(sql, new String[]{fileID});
+            Toast.makeText(context, "Nothing to be export!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        sql.append(" FROM TB_SUB_CATEGORY INNER JOIN TB_CATEGORY ON tb_sub_category.category_id = tb_category.id");
+        //export by category
+        if (categoryID != null) {
+            sql.append(" WHERE tb_category.id = ? ORDER BY tb_sub_category.priority DESC");
+            Log.d("haha", "sql:: " + sql);
+            cursor = db.rawQuery(sql.toString(), new String[]{categoryID});
+        }
+        //export by all file
+        else {
+            sql.append(" WHERE tb_category.file_id = ? ORDER BY tb_sub_category.priority DESC");
+            Log.d("haha", "sql:: " + sql);
+            cursor = db.rawQuery(sql.toString(), new String[]{fileID});
         }
         CSVWriter csvWrite = new CSVWriter(file);
-        csvWrite.writeNext(cursor.getColumnNames());
+        csvWrite.writeNext(getHeaders(columns));
 
         while (cursor.moveToNext()) {
-            csvWrite.writeNext(returnValueSetup(cursor));
-
+            csvWrite.writeNext(returnValueSetup(cursor, columns.size()));
         }
         cursor.close();
         db.close();
         return csvWrite;
     }
 
-    private String[] returnValueSetup(Cursor cursor) {
+    //setup columns
+    private ArrayList<CsvObject> getColumns() {
+        ArrayList<CsvObject> arrayList = new ArrayList<>();
+        if (SharedPreferenceManager.getExportField(context, "ExportCategory").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportCategoryValue"), ",tb_category.category_name"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportItemCode").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportItemCodeValue"), ",tb_sub_category.item_code"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportDescription").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportDescriptionValue"), ",tb_sub_category.description"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportBarcode").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportBarcodeValue"), ",tb_sub_category.barcode"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportSystemQuantity").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportSystemQuantityValue"), ",tb_sub_category.system_quantity"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportCostPrice").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportCostPriceValue"), ",tb_sub_category.cost_price"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportSellingPrice").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportSellingPriceValue"), ",tb_sub_category.selling_price"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportCheckQuantity").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportCheckQuantityValue"), ",tb_sub_category.check_quantity"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportDate").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportDateValue"), ",tb_sub_category.date_create"));
+
+        if (SharedPreferenceManager.getExportField(context, "ExportTime").equals("1"))
+            arrayList.add(new CsvObject(SharedPreferenceManager.getExportDefaultValue(context, "ExportTimeValue"), ",tb_sub_category.time_create"));
+
+        return arrayList;
+    }
+
+    //setup return value
+    private String[] returnValueSetup(Cursor cursor, int size) {
         ArrayList<String> returnValue = new ArrayList<String>();
         //loop each column
-        for (int i = 0; i < 7; i++) {
-            returnValue.add(cursor.getString(i));
+        for (int i = 0; i < size; i++) {
+            String columnData = cursor.getString(i);
+            //control check quantity format purpose (decimal or not decimal)
+            if(cursor.getColumnName(i).equals("check_quantity")){
+                if(SharedPreferenceManager.getQuantityDecimal(context).equals("default")){
+                    try{
+                        columnData = columnData.split("\\.")[0];
+                    }catch (Exception e){
+                    }
+                }
+            }
+            returnValue.add(columnData);
         }
-        //date time setting
-        if (SharedPreferenceManager.getExportDate(context).equals("1"))
-            returnValue.add(cursor.getString(cursor.getColumnIndex("date_create")));
-        if (SharedPreferenceManager.getExportTime(context).equals("1"))
-            returnValue.add(cursor.getString(cursor.getColumnIndex("time_create")));
-        //for convert array list into string array
-        //First Step: convert ArrayList to an Object array.
         Object[] objNames = returnValue.toArray();
         //Second Step: convert Object array to String array
         return Arrays.copyOf(objNames, objNames.length, String[].class);
     }
 
-    private String dateTimeSetting(String sql) {
-        if (SharedPreferenceManager.getExportDate(context).equals("1"))
-            sql = sql + ",tb_sub_category.date_create";
-        if (SharedPreferenceManager.getExportTime(context).equals("1"))
-            sql = sql + ",tb_sub_category.time_create";
-        return sql;
+    //setup header
+    private String[] getHeaders(ArrayList<CsvObject> arrayList) {
+        String header[] = new String[arrayList.size()];
+        for (int i = 0; i < arrayList.size(); i++) {
+            header[i] = arrayList.get(i).getHeader();
+        }
+        return header;
     }
 
     public String fileName(String fileID) {

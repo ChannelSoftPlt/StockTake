@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:scrollbars="none">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -42,8 +43,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_account"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -71,8 +72,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/activity_setting_label_device_name"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -88,8 +89,8 @@
                     android:gravity="center_vertical"
                     android:maxLines="1"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/activity_setting_device_name"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -108,8 +109,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="#26000000" />
 
             <TextView
@@ -132,8 +133,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_sound"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -160,8 +161,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_reminder"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -189,8 +190,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_quick_scan"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -206,8 +207,8 @@
                     android:gravity="center_vertical"
                     android:maxLines="1"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_default_quantity"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -223,11 +224,39 @@
 
             </RelativeLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="Decimal"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_decimal_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="5dp" />
+
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="#26000000" />
 
             <TextView
@@ -237,6 +266,376 @@
                 android:padding="10dp"
                 android:text="@string/activity_setting_label_export_setting"
                 android:textColor="@color/tifanny_blue" />
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_category"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_category"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_category"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_category"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_category"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_category_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_item_code"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_item_code"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_item_code"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_item_code"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_item_code"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_item_code_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_description"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_description"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_description"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_description"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_description"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_description_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_barcode"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_barcode"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_barcode"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_barcode"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_barcode"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_barcode_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_system_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_system_quantity"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_system_quantity"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_system_quantity"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_system_quantity"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_system_quantity_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_selling_price_button"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_selling_price"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_selling_price"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_selling_price"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_selling_price"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_selling_price_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:layout_alignParentEnd="true"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_cost_price_button"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_cost_price"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_cost_price"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_cost_price"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_cost_price"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_cost_price_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:layout_alignParentEnd="true"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_setting_export_check_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_setting_label_export_check_quantity"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@string/font_family_condensed"
+                    android:gravity="center_vertical"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/fragment_setting_label_export_check_quantity"
+                    android:textColor="#564141"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_check_quantity"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_check_quantity"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/fragment_setting_export_check_quantity_switch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:clickable="false"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/fragment_setting_export_date_button"
@@ -251,11 +650,27 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_export_date"
                     android:textColor="#564141"
                     android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_date"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_date"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <android.support.v7.widget.SwitchCompat
@@ -263,6 +678,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
+                    android:clickable="false"
                     android:padding="5dp" />
 
             </RelativeLayout>
@@ -280,17 +696,34 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_export_time"
                     android:textColor="#564141"
                     android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fragment_setting_default_export_time"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/fragment_setting_label_export_time"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/font_family_thin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:textColor="#564141"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <android.support.v7.widget.SwitchCompat
                     android:id="@+id/fragment_setting_export_time_switch_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:clickable="false"
                     android:layout_alignParentEnd="true"
                     android:padding="5dp" />
 
@@ -299,8 +732,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="#26000000" />
 
             <TextView
@@ -325,8 +758,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/activity_contact_us_title"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -354,8 +787,8 @@
                     android:fontFamily="@string/font_family_condensed"
                     android:gravity="center_vertical"
                     android:padding="5dp"
-                    android:paddingEnd="0dp"
                     android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     android:text="@string/fragment_setting_label_log_out"
                     android:textColor="#564141"
                     android:textSize="16sp"
@@ -364,29 +797,28 @@
                 <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
                     android:padding="15dp"
                     android:src="@drawable/fragment_setting_arrow_right" />
-
 
             </RelativeLayout>
 
         </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:layout_height="wrap_content">
-
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:id="@+id/fragment_setting_version_name"/>
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp">
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/fragment_setting_version_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
